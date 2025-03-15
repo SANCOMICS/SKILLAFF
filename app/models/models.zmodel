@@ -1,0 +1,9 @@
+// Here is how you can import relations in this model: "import './[name].zmodel'"
+
+model ModelName {
+  id String @id @default(uuid())
+  
+  // ... other properties
+
+  @@allow("all", true)
+}
