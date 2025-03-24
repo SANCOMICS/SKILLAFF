@@ -7,7 +7,7 @@ import { useDesignSystem } from '~/designSystem/provider'
 import { Theme } from '~/designSystem/theme/theme'
 import { NavigationItem } from '../../types'
 
-import { Logo } from '../Logo'
+import { OrganizationClient } from '~/plugins/organization/client'
 
 interface Props {
   keySelected?: string
@@ -35,7 +35,7 @@ export const Topbar: React.FC<Props> = ({ keySelected, items }) => {
         }}
       >
         <Flex>
-          <Logo height={40} />
+          <OrganizationClient.Select />
         </Flex>
 
         <Flex vertical flex={1} style={{ overflowX: 'hidden' }}>
@@ -59,7 +59,7 @@ export const Topbar: React.FC<Props> = ({ keySelected, items }) => {
             <Avatar
               src={user.pictureUrl}
               alt={user.name}
-              size={40}
+              size="default"
               onClick={() => router('/profile')}
               style={{ cursor: 'pointer' }}
             >

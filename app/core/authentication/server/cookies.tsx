@@ -1,18 +1,12 @@
-import cookie, {
-  type CookieParseOptions,
-  type CookieSerializeOptions,
-} from 'cookie'
+import * as cookie from 'cookie'
+
 import { Response } from 'express'
 
 export const COOKIE_MAX_AGE = 60 * 60 * 24 * 30 // 30 days
 
 const isProduction = process.env.NODE_ENV === 'production'
 
-const getCookie = (
-  req: Request,
-  name: string,
-  options?: CookieParseOptions,
-) => {
+const getCookie = (req: Request, name: string, options?: any) => {
   const cookieHeader = req.headers.get('Cookie')
 
   if (!cookieHeader) {
@@ -28,7 +22,7 @@ const setCookie = (
   resHeaders: Headers,
   name: string,
   value: string,
-  options?: CookieSerializeOptions,
+  options?: any,
 ) => {
   resHeaders.set(
     'Set-Cookie',
@@ -47,7 +41,7 @@ const setCookieOnResponse = (
   response: Response,
   name: string,
   value: string,
-  options?: CookieSerializeOptions,
+  options?: any,
 ) => {
   response.setHeader(
     'Set-Cookie',
@@ -62,11 +56,7 @@ const setCookieOnResponse = (
   )
 }
 
-const deleteCookie = (
-  resHeaders: Headers,
-  name: string,
-  options?: CookieSerializeOptions,
-) => {
+const deleteCookie = (resHeaders: Headers, name: string, options?: any) => {
   resHeaders.set(
     'Set-Cookie',
     cookie.serialize(name, '', {

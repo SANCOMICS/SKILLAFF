@@ -26,7 +26,10 @@ INSERT INTO "User" (
 '$2b$10$ppubsZypHzkqW9dkhMB97ul2.wSsvaCoDE2CzqIHygddRMKXvpYUC'
 );
 
-`
+INSERT INTO "Organization" ("id", "name", "pictureUrl") VALUES ('6ae3ce30-c530-4a80-b9eb-d7acfcf7ee73', 'NextGen Enterprises', 'https://i.imgur.com/BgkFiid.jpeg');
+INSERT INTO "OrganizationRole" ("id", "name", "userId", "organizationId") VALUES ('44cbc057-6a21-41ab-a4b4-eea465dfa02d', 'owner', '21a857f1-ba5f-4435-bcf6-f910ec07c0dc', '6ae3ce30-c530-4a80-b9eb-d7acfcf7ee73');
+
+  `
 
   const sqls = splitSql(sql)
 

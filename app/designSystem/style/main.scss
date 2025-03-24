@@ -71,6 +71,12 @@ body {
   --ant-typography-title-margin-bottom: 0em;
 }
 
+.organization-select__menu {
+  li {
+    cursor: default !important;
+  }
+}
+
 /* Line awesome icons size */
 .las,
 .lab,

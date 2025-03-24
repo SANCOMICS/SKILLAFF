@@ -19,9 +19,9 @@ export const Logo: React.FC<Props> = ({
   }
 
   return (
-    <Flex align="center" gap={10} onClick={() => goTo('/skillfeed')}>
+    <Flex align="center" gap={10} onClick={() => goTo('/home')}>
       <img
-        src="https://marblism-dashboard-api--production-public.s3.us-west-1.amazonaws.com/gDTGyB-skillaff-q0fm"
+        src="https://marblism-dashboard-api--production-public.s3.us-west-1.amazonaws.com/wo5hwD-marblismtasks-UXz8"
         {...props}
         alt="Logo"
         height={height}
@@ -40,7 +40,7 @@ export const Logo: React.FC<Props> = ({
       />
       {isLabel && (
         <Typography.Title level={4} style={{ margin: '0px' }}>
-          SKILLFLOW
+          Marblism Tasks
         </Typography.Title>
       )}
     </Flex>

@@ -27,7 +27,17 @@ export default function PricingPage() {
       return 'Free'
     }
 
-    return `XAF ${product.price}`
+    const mapping = {
+      usd: '${{price}}',
+    }
+
+    const pattern = mapping[product.currency]
+
+    if (pattern) {
+      return pattern.replace('{{price}}', product.price)
+    }
+
+    return `${product.currency.toUpperCase()} ${product.price}`
   }
 
   const isSubscribed = (product: Product) => {
@@ -48,72 +58,70 @@ export default function PricingPage() {
           />
         )}
 
-        {products
-          .filter(product => product.name !== 'Enterprise')
-          .map(product => (
-            <Col key={product.id} xs={24} sm={12} md={12} lg={12} xl={8}>
-              <Card
-                style={{ height: '100%', overflow: 'hidden' }}
-                hoverable
-                onClick={() => handleClick(product)}
-                cover={
-                  <Flex
+        {products.map(product => (
+          <Col key={product.id} xs={24} sm={12} md={12} lg={12} xl={8}>
+            <Card
+              style={{ height: '100%', overflow: 'hidden' }}
+              hoverable
+              onClick={() => handleClick(product)}
+              cover={
+                <Flex
+                  style={{
+                    position: 'relative',
+                    height: '40vh',
+                    width: '100%',
+                    overflow: 'hidden',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    borderTopLeftRadius: '10px',
+                    borderTopRightRadius: '10px',
+                  }}
+                >
+                  <img
+                    src={product.coverUrl}
+                    alt={product.name}
                     style={{
-                      position: 'relative',
-                      height: '40vh',
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      height: '100%',
                       width: '100%',
-                      overflow: 'hidden',
-                      display: 'flex',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      borderTopLeftRadius: '10px',
-                      borderTopRightRadius: '10px',
+                      objectFit: 'cover',
                     }}
-                  >
-                    <img
-                      src={product.coverUrl}
-                      alt={product.name}
-                      style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        height: '100%',
-                        width: '100%',
-                        objectFit: 'cover',
-                      }}
-                    />
-                  </Flex>
-                }
-              >
-                <Flex vertical gap={10}>
-                  <Typography.Title level={3} style={{ margin: 0 }}>
-                    {product.name}
-                  </Typography.Title>
-
-                  <Flex align="center">
-                    <Typography.Title level={1} style={{ margin: 0 }}>
-                      {getPrice(product)}
-                    </Typography.Title>
-                    {product.interval && (
-                      <Typography.Text className="ml-1">
-                        / {product.interval}
-                      </Typography.Text>
-                    )}
-                  </Flex>
-
-                  {isSubscribed(product) && (
-                    <div>
-                      <Tag color="success">Active</Tag>
-                    </div>
-                  )}
-
-                  <Typography.Text type="secondary">
-                    {product.description}
-                  </Typography.Text>
+                  />
                 </Flex>
-              </Card>
-            </Col>
-          ))}
+              }
+            >
+              <Flex vertical gap={10}>
+                <Typography.Title level={3} style={{ margin: 0 }}>
+                  {product.name}
+                </Typography.Title>
+
+                <Flex align="center">
+                  <Typography.Title level={1} style={{ margin: 0 }}>
+                    {getPrice(product)}
+                  </Typography.Title>
+                  {product.interval && (
+                    <Typography.Text className="ml-1">
+                      / {product.interval}
+                    </Typography.Text>
+                  )}
+                </Flex>
+
+                {isSubscribed(product) && (
+                  <div>
+                    <Tag color="success">Active</Tag>
+                  </div>
+                )}
+
+                <Typography.Text type="secondary">
+                  {product.description}
+                </Typography.Text>
+              </Flex>
+            </Card>
+          </Col>
+        ))}
       </Row>
     </PageLayout>
   )

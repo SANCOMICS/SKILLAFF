@@ -1,17 +1,6 @@
 <div style="background: black;">
-<p align="center" style="margin: 0;">
-  <a href="https://dev.marblism.com" target="blank">
-    <img src="https://marblism-dashboard-api--production-public.s3.us-west-1.amazonaws.com/marblism-logo.png" height="150" alt="Marblism Logo" />
-  </a>
-</p>
-<h1 align="center" style="margin: 0;">In Marble We Trust</h1>
+<h1 align="center" style="margin: 0;">marble-stack</h1>
 
-<a  style="margin: 0;" target="_blank" href="https://marblism.com">
-<p align="center" style="margin: 0; letter-spacing: 3px;
-text-decoration: none;">
-marblism
-</p>
-</a>
 </div>
 <div style="height: 50px; background: linear-gradient(#000000, transparent);"></div>
 
@@ -54,11 +43,3 @@ $ pnpm run dev
 $ pnpm run build
 $ pnpm run start
 ```
-
-## Support
-
-We reply FAST on our <a target="_blank" href="https://discord.gg/GScNz7kAEu">Discord server</a>.
-
-## Stay in touch
-
-[@marblismAI](https://twitter.com/marblismAI)

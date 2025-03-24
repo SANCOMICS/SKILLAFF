@@ -11,29 +11,6 @@ import { COOKIE_MAX_AGE, Cookies } from './cookies'
 import { AuthenticationService } from './service'
 
 export const AuthenticationRouter = Trpc.createRouter({
-  createAdmin: Trpc.procedurePublic
-    .input(
-      z.object({
-        email: z.string().email(),
-        password: z.string(),
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      checkPassword(input.password)
-      const passwordHashed = hashPassword(input.password)
-
-      const user = await ctx.databaseUnprotected.user.create({
-        data: {
-          email: 'admin@admin.com',
-          password: passwordHashed,
-          globalRole: 'ADMIN',
-          status: 'VERIFIED',
-        },
-      })
-
-      return { id: user.id }
-    }),
-
   session: Trpc.procedure.query(async ({ ctx }) => {
     const user = await ctx.database.user.findUniqueOrThrow({
       where: { id: ctx.session.user.id },
@@ -45,11 +22,11 @@ export const AuthenticationRouter = Trpc.createRouter({
   logout: Trpc.procedurePublic.mutation(async ({ ctx }) => {
     Cookies.delete(ctx.responseHeaders, 'MARBLISM_ACCESS_TOKEN')
 
-    ctx.responseHeaders.set('Location', '/')
+    ctx.responseHeaders.set('Location', '/login')
 
     return {
       success: true,
-      redirect: '/',
+      redirect: '/login',
     }
   }),
 
@@ -62,50 +39,15 @@ export const AuthenticationRouter = Trpc.createRouter({
     )
     .mutation(async ({ ctx, input }) => {
       try {
-        // Log authentication attempt
-        console.log(`Authentication attempt for email: ${input.email}`)
-
-        let user
-        try {
-          user = await ctx.databaseUnprotected.user.findUnique({
-            where: { email: input.email },
-          })
-        } catch (error) {
-          console.log(`Failed login attempt - user not found: ${input.email}`)
-          return {
-            success: false,
-            code: 'USER_NOT_FOUND',
-            redirect: '/login?error=UserNotFound',
-          }
-        }
-
-        if (!user) {
-          console.log(`Failed login attempt - user not found: ${input.email}`)
-          return {
-            success: false,
-            code: 'USER_NOT_FOUND',
-            redirect: '/login?error=UserNotFound',
-          }
-        }
-
-        if (user.status !== 'VERIFIED') {
-          console.log(
-            `Failed login attempt - user not verified: ${input.email}`,
-          )
-          return {
-            success: false,
-            code: 'USER_NOT_VERIFIED',
-            redirect: '/login?error=UserNotVerified',
-          }
-        }
+        const user = await ctx.databaseUnprotected.user.findUniqueOrThrow({
+          where: { email: input.email },
+        })
 
         const isValid = await Bcrypt.compare(input.password, user.password)
 
         if (!isValid) {
-          console.log(`Failed login attempt - invalid password: ${input.email}`)
           return {
             success: false,
-            code: 'INVALID_CREDENTIALS',
             redirect: '/login?error=CredentialsSignin',
           }
         }
@@ -118,19 +60,13 @@ export const AuthenticationRouter = Trpc.createRouter({
 
         Cookies.set(ctx.responseHeaders, 'MARBLISM_ACCESS_TOKEN', jwtToken)
 
-        console.log(`Successful login for user: ${input.email}`)
         return {
           success: true,
-          code: 'SUCCESS',
-          redirect: '/skillfeed',
+          redirect: '/home',
         }
       } catch (error) {
-        console.error(`Login error for ${input.email}:`, error)
-        return {
-          success: false,
-          code: 'INTERNAL_ERROR',
-          redirect: '/login?error=default',
-        }
+        console.log(error)
+        return { success: false, redirect: '/login?error=default' }
       }
     }),
 
@@ -205,6 +141,90 @@ export const AuthenticationRouter = Trpc.createRouter({
       await AuthenticationService.onRegistration(ctx, user.id)
 
       return { id: user.id }
+    }),
+
+  inviteToOrganization: Trpc.procedure
+    .input(
+      z.object({
+        email: z.string().email(),
+        organizationId: z.string(),
+        roleName: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { organizationId, roleName = 'member' } = input
+
+      const email = input.email.trim().toLowerCase()
+
+      const organization = await ctx.database.organization.findUniqueOrThrow({
+        where: { id: organizationId },
+      })
+
+      let user = await ctx.database.user.findUnique({
+        where: { email },
+      })
+
+      if (!user) {
+        user = await ctx.databaseUnprotected.user.create({
+          data: { email, status: 'INVITED' },
+        })
+      }
+
+      const payload = { userId: user.id }
+
+      const secret = Configuration.getAuthenticationSecret()
+
+      const token = Jwt.sign(payload, secret)
+
+      user = await ctx.databaseUnprotected.user.update({
+        where: { id: user.id },
+        data: { tokenInvitation: token },
+      })
+
+      let organizationRole = await ctx.database.organizationRole.findFirst({
+        where: { organizationId: organization.id, userId: user.id },
+      })
+
+      if (organizationRole) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: `${email} is already in your organization`,
+        })
+      }
+
+      organizationRole = await ctx.database.organizationRole.create({
+        data: {
+          organizationId: organization.id,
+          userId: user.id,
+          name: roleName,
+        },
+      })
+
+      try {
+        const url = Configuration.getBaseUrl()
+        const email = user.email
+        const token = user.tokenInvitation
+
+        const urlInvitation = `${url}/register?tokenInvitation=${encodeURIComponent(
+          token,
+        )}&email=${encodeURIComponent(email)}`
+
+        await EmailServer.service.send({
+          templateKey: 'invitationToOrganization',
+          email: email,
+          name: email,
+          subject: `Invitation to ${organization.name}`,
+          variables: {
+            url_invitation: urlInvitation,
+            organization_name: organization.name,
+          },
+        })
+      } catch (error) {
+        console.error('Could not send invitation email to organization')
+        console.error(error.message)
+      }
+
+      return { user, organizationRole }
     }),
 
   sendResetPasswordEmail: Trpc.procedurePublic

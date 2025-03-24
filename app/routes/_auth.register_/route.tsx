@@ -5,7 +5,6 @@ import { User } from '@prisma/client'
 import { useNavigate, useSearchParams } from '@remix-run/react'
 import { Button, Flex, Form, Input, Typography } from 'antd'
 import { useEffect, useState } from 'react'
-import { AuthenticationClient } from '~/core/authentication/client'
 
 export default function RegisterPage() {
   const router = useNavigate()
@@ -104,8 +103,6 @@ export default function RegisterPage() {
             </Button>
           </Form.Item>
         </Form>
-
-        <AuthenticationClient.SocialButtons />
 
         <Button
           ghost

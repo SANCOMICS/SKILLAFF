@@ -7,7 +7,7 @@ import { useDesignSystem } from '~/designSystem/provider'
 import { Theme } from '~/designSystem/theme/theme'
 import { NavigationItem } from '../../types'
 
-import { Logo } from '../Logo'
+import { OrganizationClient } from '~/plugins/organization/client'
 
 interface Props {
   keySelected?: string
@@ -51,19 +51,7 @@ export const Mobilebar: React.FC<Props> = ({ keySelected, items }) => {
             </Flex>
           )}
 
-          <Flex
-            align="center"
-            justify="center"
-            style={{
-              position: 'absolute',
-              left: 0,
-              right: 0,
-              top: 0,
-              bottom: 0,
-            }}
-          >
-            <Logo height={40} />
-          </Flex>
+          <OrganizationClient.Select />
         </Flex>
 
         <Flex align="center">

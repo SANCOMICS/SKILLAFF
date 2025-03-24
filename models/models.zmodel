@@ -4,32 +4,27 @@ enum UserStatus {
 }
 
 model User {
-    id                  String          @id @default(uuid())
-    name                String?
-    email               String?         @unique
-    pictureUrl          String?         @default('https://i.imgur.com/ZdJSK3Y.jpeg')
-    tokenInvitation     String?
-    status              UserStatus      @default(VERIFIED)
+    id                String             @id @default(uuid())
+    name              String?
+    email             String?            @unique
+    pictureUrl        String?            @default('https://i.imgur.com/ZdJSK3Y.jpeg')
+    tokenInvitation   String?
+
+    stripeCustomerId  String?
+
+    status            UserStatus         @default(VERIFIED)
 
     // this is the role of the user for the application
-    globalRole          String          @default('USER') // Keep USER as default but allow PREMIUM and ADMIN
-    password            String?         @password @omit
-    createdAt           DateTime        @default(now())
-    updatedAt           DateTime        @updatedAt @default(now())
+    globalRole        String             @default('USER')
+    password          String?            @password @omit
+    createdAt         DateTime           @default(now())
+    updatedAt         DateTime           @updatedAt @default(now())
 
-    subscriptions       Subscription[]  @relation("user")
-    wallets             Wallet[]        @relation("user")
-    referralsAsReferrer Referral[]      @relation("referrer")
-    referralsAsReferred Referral[]      @relation("referred")
-    transactions        Transaction[]   @relation("user")
-    socialAccounts      SocialAccount[] @relation("user")
-    enrolledCourses     UserCourse[]
-    payoutSettings      PayoutSettings? @relation("payoutSettings")
+    organizationRoles OrganizationRole[]
 
     @@auth()
     @@allow("all", auth().id == this.id)
     @@allow('all', auth().globalRole == 'ADMIN')
-    @@allow('all', auth().globalRole == 'PREMIUM')
 
     //we only allow that user to register if they don't create an admin role
     @@allow("create", globalRole != 'ADMIN')
@@ -37,194 +32,38 @@ model User {
 }
 
 
-model Subscription {
 
-    id        String   @id @default(uuid())
-    planType  String?
-    startDate String?
-    endDate   String?
-    status    String?
+model Organization {
+    id               String             @id @default(uuid())
+    name             String
+    pictureUrl       String?            @default('https://i.imgur.com/BgkFiid.jpeg')
 
-    userId    String?
-    user      User?    @relation(fields: [userId], references: [id], name: "user")
+    stripeCustomerId String?
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt @default(now())
-    @@allow("all", true)
-}
-
-model Course {
-
-    id            String       @id @default(uuid())
-    title         String?
-    description   String?
-    previewUrl    String?
-    contentUrl    String?
-    isPremium     Boolean      @default(false)
-    price         String?
-    paymentLink   String?
-    sections      Section[]
-    enrolledUsers UserCourse[]
-
-    createdAt     DateTime     @default(now())
-    updatedAt     DateTime     @updatedAt @default(now())
-    @@allow('update', auth().globalRole == 'ADMIN')
-    @@allow('update', auth().globalRole != 'ADMIN' && paymentLink == null)
-    @@allow('create', !isPremium || auth().globalRole == 'ADMIN')
-    @@allow("all", true)
-}
-
-model Section {
-    id        String   @id @default(uuid())
-    title     String
-    order     Int
-    courseId  String
-    course    Course   @relation(fields: [courseId], references: [id])
-    videos    Video[]
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    @@allow("all", true)
-}
-
-model Video {
-    id           String   @id @default(uuid())
-    title        String
-    description  String
-    embedLink    String
-    fileUrl      String?
-    documentUrl  String?
-    documentType String?
-    order        Int
-    sectionId    String
-    section      Section  @relation(fields: [sectionId], references: [id])
-    createdAt    DateTime @default(now())
-    updatedAt    DateTime @updatedAt
-    @@allow("all", true)
-}
-
-model Wallet {
-
-    id            String   @id @default(uuid())
-    balance       String
-    totalEarnings String
-
-    userId        String?
-    user          User?    @relation(fields: [userId], references: [id], name: "user")
-
-    createdAt     DateTime @default(now())
-    updatedAt     DateTime @updatedAt @default(now())
-    @@allow("all", true)
-}
-
-model Referral {
-
-    id           String        @id @default(uuid())
-    commission   String?
-    status       String?
-
-    referrerId   String?
-    referrer     User?         @relation(fields: [referrerId], references: [id], name: "referrer")
-    referredId   String?
-    referred     User?         @relation(fields: [referredId], references: [id], name: "referred")
-
-    transactions Transaction[] @relation("referral")
-    createdAt    DateTime      @default(now())
-    updatedAt    DateTime      @updatedAt @default(now())
-    @@allow("all", true)
-}
-
-model Transaction {
-
-    id         String    @id @default(uuid())
-    amount     String?
-    type       String?
-    status     String?
-
-    userId     String?
-    user       User?     @relation(fields: [userId], references: [id], name: "user")
-    referralId String?
-    referral   Referral? @relation(fields: [referralId], references: [id], name: "referral")
-
-    createdAt  DateTime  @default(now())
-    updatedAt  DateTime  @updatedAt @default(now())
-    @@allow("all", true)
-}
-
-model SocialAccount {
-
-    id        String   @id @default(uuid())
-    platform  String?
-    accountId String?
-    status    String?
-
-    userId    String?
-    user      User?    @relation(fields: [userId], references: [id], name: "user")
-
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt @default(now())
-    @@allow("all", true)
-}
-
-model SkillFeedVideo {
-    id          String   @id @default(uuid())
-    title       String
-    description String
-    link        String
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt @default(now())
-
-    @@allow('all', true)
-}
-
-model UserCourse {
-    id        String   @id @default(uuid())
-    userId    String
-    courseId  String
-    user      User     @relation(fields: [userId], references: [id])
-    course    Course   @relation(fields: [courseId], references: [id])
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
-    @@allow('all', true)
-    @@unique([userId, courseId])
-}
-
-model PremiumLink {
-    id        String   @id @default(uuid())
-    url       String   @unique
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    createdAt        DateTime           @default(now())
+    updatedAt        DateTime           @updatedAt @default(now())
+    roles            OrganizationRole[]
 
     @@allow('all', auth().globalRole == 'ADMIN')
-    @@allow('read', true)
+    @@allow('all', roles?[user == auth() && name == 'owner'])
+    @@allow('read', roles?[user == auth()])
 }
 
-model AffiliateLink {
-    id        String   @id @default(uuid())
-    url       String   @unique
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+model OrganizationRole {
+    id             String       @id @default(uuid())
+    name           String
+    createdAt      DateTime     @default(now())
+    updatedAt      DateTime     @updatedAt @default(now())
+
+    userId         String       @default(auth().id)
+    user           User         @relation(fields: [userId], references: [id])
+    organizationId String
+    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
     @@allow('all', auth().globalRole == 'ADMIN')
-    @@allow('read', true)
+    @@allow('all', organization.roles?[user == auth() && name == 'owner'])
+    @@allow('create', organization.roles?[user == auth()] && name != 'owner')
+    @@allow('read', organization.roles?[user == auth()])
+    @@allow('delete', auth() == user)
 }
 
-model PayoutSettings {
-    id            String   @id @default(uuid())
-    accountNumber String
-    bankCode      String
-    verified      Boolean  @default(false)
-
-    userId        String   @unique
-    user          User     @relation(fields: [userId], references: [id], name: "payoutSettings")
-
-    createdAt     DateTime @default(now())
-    updatedAt     DateTime @updatedAt @default(now())
-
-    @@allow('create', auth().id == userId)
-    @@allow('read', auth().id == userId || auth().globalRole == 'ADMIN')
-    @@allow('update', auth().id == userId || auth().globalRole == 'ADMIN')
-    @@allow('delete', auth().id == userId || auth().globalRole == 'ADMIN')
-}
-
-            

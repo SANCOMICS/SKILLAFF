@@ -15,6 +15,26 @@ class Service {
     if (!user) {
       return
     }
+
+    const organization = await ctx.databaseUnprotected.organization.findFirst({
+      where: { roles: { some: { userId: user.id } } },
+    })
+
+    if (organization) {
+      return
+    }
+
+    await ctx.databaseUnprotected.organization.create({
+      data: {
+        name: `${user.name.split(' ')[0]}'s Team`,
+        roles: {
+          create: {
+            userId: user.id,
+            name: 'owner',
+          },
+        },
+      },
+    })
   }
 }
 

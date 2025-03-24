@@ -3,7 +3,7 @@ import { type RouterFactory, type ProcBuilder, type BaseConfig, db } from ".";
 import * as _Schema from '@zenstackhq/runtime/zod/input';
 const $Schema: typeof _Schema = (_Schema as any).default ?? _Schema;
 import { checkRead, checkMutate } from '../helper';
-import type { Prisma } from '@prisma/client';
+import type { Prisma } from '@zenstackhq/runtime/models';
 import type { UseTRPCMutationOptions, UseTRPCMutationResult, UseTRPCQueryOptions, UseTRPCQueryResult, UseTRPCInfiniteQueryOptions, UseTRPCInfiniteQueryResult } from '@trpc/react-query/shared';
 import type { TRPCClientErrorLike } from '@trpc/client';
 import type { AnyRouter } from '@trpc/server';
