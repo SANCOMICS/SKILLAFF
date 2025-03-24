@@ -29,7 +29,13 @@ const isTiktokUrl = (url: string) => {
 }
 
 export default function HomePage() {
+  // const { data: videos } = Api.skillFeedVideo.findMany.useQuery()
+  const shuffleArray = (array: any[]) => array.sort(() => Math.random() - 0.5)
+
   const { data: videos } = Api.skillFeedVideo.findMany.useQuery()
+
+  const shuffledVideos = videos ? shuffleArray([...videos]) : []
+
   const [expandedDescriptions, setExpandedDescriptions] = useState<{
     [key: string]: boolean
   }>({})
@@ -52,7 +58,9 @@ export default function HomePage() {
   return (
     <PageLayout layout="full-width">
       <div className="flex flex-col scroll-smooth snap-y snap-mandatory h-[90vh] overflow-y-scroll mx-[5px]">
-        {videos?.map(video => (
+        {/* {videos?.map(video => ( */}
+        {shuffledVideos?.map(video => (
+
           <div
             key={video.id}
             className="w-full h-[90vh] flex flex-col justify-center video-container snap-start snap-always"
