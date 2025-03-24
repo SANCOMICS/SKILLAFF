@@ -148,7 +148,7 @@ export default function LoginPage() {
           </Form.Item>
         </Form>
 
-        <AuthenticationClient.SocialButtons />
+        {/* <AuthenticationClient.SocialButtons /> */}
 
         <Button
           ghost

@@ -105,7 +105,7 @@ export default function RegisterPage() {
           </Form.Item>
         </Form>
 
-        <AuthenticationClient.SocialButtons />
+        {/* <AuthenticationClient.SocialButtons /> */}
 
         <Button
           ghost
