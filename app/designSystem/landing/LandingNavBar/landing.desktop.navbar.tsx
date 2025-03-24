@@ -34,7 +34,7 @@ export const LandingDesktopNavbar = ({ navItems }: Props) => {
       </div>
       <div className="flex space-x-2 items-center">
         {isLoggedIn && (
-          <LandingButton size="sm" href="/home">
+          <LandingButton size="sm" href="/skillfeed">
             Dashboard <ArrowRightOutlined />
           </LandingButton>
         )}

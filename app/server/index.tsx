@@ -8,8 +8,6 @@ import { UploadServer } from '@/plugins/upload/server'
 
 import { PaymentServer } from '~/plugins/payment/server'
 
-import { NangoRouter } from '~/plugins/nango/server/nango.router'
-
 export const appRouter = Trpc.mergeRouters(
   createRouter(Trpc.createRouter, Trpc.procedurePublic),
 
@@ -22,8 +20,6 @@ export const appRouter = Trpc.mergeRouters(
     email: EmailServer.trpcRouter,
 
     billing: PaymentServer.trpcRouter,
-
-    nango: NangoRouter,
   }),
 )
 

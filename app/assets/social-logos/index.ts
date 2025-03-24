@@ -1,0 +1,5 @@
+export const FACEBOOK_LOGO = '/assets/social-logos/facebook-logo.png'
+export const TWITTER_LOGO = '/assets/social-logos/twitter-logo.png'
+export const LINKEDIN_LOGO = '/assets/social-logos/linkedin-logo.png'
+export const YOUTUBE_LOGO = '/assets/social-logos/youtube-logo.png'
+export const TIKTOK_LOGO = '/assets/social-logos/tiktok-logo.png'

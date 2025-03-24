@@ -12,6 +12,8 @@ export default function LoginPage() {
   const [form] = Form.useForm()
   const [isLoading, setLoading] = useState(false)
 
+  const { mutateAsync: createAdmin } =
+    Api.authentication.createAdmin.useMutation()
   const { mutateAsync: login } = Api.authentication.login.useMutation({
     onSuccess: data => {
       if (data.redirect) {
@@ -39,19 +41,47 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
-      form.setFieldValue('email', 'test@test.com')
-      form.setFieldValue('password', 'password')
+      form.setFieldValue('email', 'user@test.com')
+      form.setFieldValue('password', 'password123')
     }
   }, [])
+
+  useEffect(() => {
+    const createAdminUser = async () => {
+      try {
+        await createAdmin({
+          email: 'admin@admin.com',
+          password: 'admin123',
+        })
+      } catch (error) {
+        // Silently fail if admin already exists
+      }
+    }
+    createAdminUser()
+  }, [createAdmin])
 
   const handleSubmit = async (values: any) => {
     setLoading(true)
 
     try {
-      await login({ email: values.email, password: values.password })
+      const response = await login({
+        email: values.email,
+        password: values.password,
+      })
+      if (!response.success) {
+        setLoading(false)
+        window.location.href = response.redirect
+      }
     } catch (error) {
-      console.error(`Could not login: ${error.message}`, { variant: 'error' })
-
+      if (error instanceof Error) {
+        if ('code' in error) {
+          // API error
+          window.location.href = `/login?error=${error.code}`
+        } else {
+          // Network error
+          window.location.href = '/login?error=default'
+        }
+      }
       setLoading(false)
     }
   }

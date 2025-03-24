@@ -16,10 +16,10 @@ import { AnalyticsProvider } from './plugins/analytics/client'
 
 export const meta: MetaFunction = () => {
   return [
-    { title: 'Marblism Tasks' },
+    { title: 'SKILLFLOW' },
     {
       name: 'description',
-      content: 'Marblism Tasks',
+      content: 'SKILLFLOW',
     },
   ]
 }
@@ -42,7 +42,7 @@ export const links: LinksFunction = () => {
     },
   ]
 
-return items
+  return items
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -59,11 +59,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <TrpcClient.Provider>
             <AnalyticsProvider>
               <WorkspaceProvider>
-                <UserProvider>
-
-{children}
-                  
-                </UserProvider>
+                <UserProvider>{children}</UserProvider>
               </WorkspaceProvider>
             </AnalyticsProvider>
           </TrpcClient.Provider>
@@ -77,5 +73,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  return <Outlet />
+  return (
+    <UserProvider>
+      <Outlet />
+    </UserProvider>
+  )
 }

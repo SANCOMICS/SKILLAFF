@@ -1,11 +1,13 @@
-import { Avatar, Button, Flex, Form, Input, Typography } from 'antd'
-
+import { Avatar, Button, Flex, Form, Input, Typography, Upload } from 'antd'
+import { UploadOutlined } from '@ant-design/icons'
 import { useUserContext } from '@/core/context'
 import { Utility } from '@/core/helpers/utility'
 import { Api } from '@/core/trpc'
 import { PageLayout } from '@/designSystem'
 import { User } from '@prisma/client'
 import { useEffect, useState } from 'react'
+import { useUploadPublic } from '@/plugins/upload/client'
+import { UploadFile, RcFile } from 'antd/es/upload/interface'
 
 export default function ProfilePage() {
   const { user, refetch: refetchUser } = useUserContext()
@@ -21,8 +23,10 @@ export default function ProfilePage() {
 
   const [isLoading, setLoading] = useState(false)
   const [isLoadingLogout, setLoadingLogout] = useState(false)
+  const [fileList, setFileList] = useState<UploadFile[]>([])
 
   const { mutateAsync: updateUser } = Api.user.update.useMutation()
+  const { mutateAsync: upload } = useUploadPublic()
 
   useEffect(() => {
     form.setFieldsValue(user)
@@ -32,12 +36,18 @@ export default function ProfilePage() {
     setLoading(true)
 
     try {
+      let pictureUrl = values.pictureUrl;
+      if (fileList.length > 0) {
+        const { url } = await upload({ file: fileList[0] as RcFile });
+        pictureUrl = url;
+      }
+
       await updateUser({
         where: { id: user.id },
         data: {
           email: values.email,
           name: values.name,
-          pictureUrl: values.pictureUrl,
+          pictureUrl,
         },
       })
 
@@ -104,7 +114,16 @@ export default function ProfilePage() {
         </Form.Item>
 
         <Form.Item label="Profile picture" name="pictureUrl">
-          <Input />
+          <Upload 
+            fileList={fileList} 
+            beforeUpload={file => { 
+              setFileList([...fileList, file]); 
+              return false; 
+            }} 
+            maxCount={1}
+          >
+            <Button icon={<UploadOutlined />}>Select Image</Button>
+          </Upload>
         </Form.Item>
 
         <Form.Item>

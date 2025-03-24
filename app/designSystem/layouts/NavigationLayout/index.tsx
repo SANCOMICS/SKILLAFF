@@ -1,12 +1,17 @@
-import { Link, useLocation, useNavigate, useParams } from '@remix-run/react'
+import { useUserContext } from '@/core/context'
+import { Api } from '@/core/trpc'
+import {
+  HomeOutlined,
+  LogoutOutlined,
+  SettingOutlined,
+} from '@ant-design/icons'
+import { useLocation, useNavigate, useParams } from '@remix-run/react'
 import { Flex } from 'antd'
 import { ReactNode } from 'react'
 import { Leftbar } from './components/Leftbar'
 import { Mobilebar } from './components/Mobilebar'
 import { Topbar } from './components/Topbar'
 import { NavigationItem } from './types'
-
-import { useUserContext } from '~/core/context'
 
 interface Props {
   children: ReactNode
@@ -17,7 +22,14 @@ export const NavigationLayout: React.FC<Props> = ({ children }) => {
   const pathname = useLocation().pathname
   const params: Record<string, string> = useParams()
 
-  const { organization } = useUserContext()
+  const { checkRole } = useUserContext()
+  const { mutateAsync: logout } = Api.authentication.logout.useMutation({
+    onSuccess: data => {
+      if (data.redirect) {
+        window.location.href = data.redirect
+      }
+    },
+  })
 
   const goTo = (url: string) => {
     router(url)
@@ -25,42 +37,54 @@ export const NavigationLayout: React.FC<Props> = ({ children }) => {
 
   const items: NavigationItem[] = [
     {
-      key: '/home',
-      label: 'Home',
+      key: '/admin/control-panel',
+      label: 'Control Panel',
       position: 'leftbar',
-
-      onClick: () => goTo('/home'),
+      icon: <i className="las la-cogs"></i>,
+      onClick: () => goTo('/admin/control-panel'),
+      isVisible: checkRole('ADMIN'),
     },
-
     {
-      key: '/organizations/:organizationId/home',
-      label: 'My Organization',
-      position: 'leftbar',
-
-      isVisible: !!organization,
-      onClick: () =>
-        goTo(
-          '/organizations/:organizationId/home'.replace(
-            ':organizationId',
-            organization.id,
-          ),
-        ),
+      key: '/skillfeed',
+      label: 'Skill Feed',
+      position: 'topbar',
+      icon: <HomeOutlined />,
+      onClick: () => goTo('/skillfeed'),
     },
-
     {
-      key: '/organizations/:organizationId/pricing',
-      label: 'Pricing',
-
-      position: 'leftbar',
-
-      isVisible: !!organization,
-      onClick: () =>
-        goTo(
-          '/organizations/:organizationId/pricing'.replace(
-            ':organizationId',
-            organization.id,
-          ),
-        ),
+      key: '/courses',
+      label: 'Courses',
+      position: 'topbar',
+      icon: <HomeOutlined />,
+      onClick: () => goTo('/courses'),
+    },
+    {
+      key: '/my-courses',
+      label: 'My Courses',
+      position: 'topbar',
+      icon: <i className="las la-graduation-cap"></i>,
+      onClick: () => goTo('/my-courses'),
+    },
+    {
+      key: '/wallet',
+      label: 'Wallet',
+      position: 'topbar',
+      icon: <i className='las la-wallet'></i>,
+      onClick: () => goTo('/wallet')
+    },
+    {
+      key: '/settings',
+      label: 'Settings',
+      position: 'topbar',
+      icon: <SettingOutlined />,
+      onClick: () => goTo('/settings'),
+    },
+    {
+      key: '/logout',
+      label: 'Logout',
+      position: 'topbar',
+      icon: <LogoutOutlined />,
+      onClick: () => logout(),
     },
   ]
 

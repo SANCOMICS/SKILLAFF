@@ -1,17 +1,19 @@
 import { User } from '@prisma/client'
-import {
-  Payment,
-  Product,
-  StripeWebhookResponse,
-  Subscription,
-} from './payment.type'
+import { Payment, Product, Subscription } from './payment.type'
+import { FlutterwaveProvider } from './providers/flutterwave'
 import { Provider } from './providers/provider'
-import { StripeProvider } from './providers/stripe/stripe.provider'
 
-import { Organization } from '@prisma/client'
+interface PaymentService {
+  getCustomerId(user: User): string
+  withdrawFromWallet(options: {
+    customerId: string
+    amount: string
+    phoneNumber: string
+  }): Promise<void>
+}
 
-class Service {
-  private provider: Provider = new StripeProvider()
+class Service implements PaymentService {
+  private provider: Provider = new FlutterwaveProvider()
 
   isActive(): boolean {
     if (this.provider) {
@@ -21,17 +23,38 @@ class Service {
     return false
   }
 
-  getCustomerId(user: User | Organization): string {
-    return user.stripeCustomerId
+  getCustomerId(user: User): string {
+    return user.email
+  }
+
+  async getWalletBalance(user: User): Promise<string> {
+    const wallet = await this.provider.getWalletBalance(
+      this.getCustomerId(user),
+    )
+    return wallet.balance
+  }
+
+  async depositToWallet(user: User, amount: string, phoneNumber: string): Promise<boolean> {
+    return this.provider.depositToWallet({
+      customerId: this.getCustomerId(user),
+      amount,
+      phoneNumber
+    })
+  }
+
+  async withdrawFromWallet(options: {
+    customerId: string
+    amount: string
+    phoneNumber: string
+  }): Promise<void> {
+    await this.provider.withdrawFromWallet(options)
   }
 
   async findManyProducts(): Promise<Product[]> {
     return this.provider.findManyProducts()
   }
 
-  async findManySubscriptions(
-    customer: User | Organization,
-  ): Promise<Subscription[]> {
+  async findManySubscriptions(customer: User): Promise<Subscription[]> {
     return this.provider.findManySubscriptions(this.getCustomerId(customer))
   }
 
@@ -41,37 +64,19 @@ class Service {
 
   async createPaymentLink(options: {
     user: User
-
-    organization: Organization
-
     productId: string
     metadata?: Record<string, string>
     urlRedirection?: string
+    phoneNumber: string
   }): Promise<string> {
     const optionsPayment = {
       ...options,
-
-      customerId: this.getCustomerId(options.organization ?? options.user),
+      customerId: this.getCustomerId(options.user),
     }
 
     return this.provider.createPaymentLink(optionsPayment)
   }
 
-  async onPayment(body: Buffer, sig: string): Promise<StripeWebhookResponse> {
-    return this.provider.onPayment(body, sig)
-  }
-
-  async createCustomer(
-    customer: User,
-
-    organization?: Organization,
-  ): Promise<string> {
-    return this.provider.createCustomer({
-      name: organization?.name ?? customer.name ?? customer.email,
-
-      email: customer.email,
-    })
-  }
 }
 
 class Singleton {

@@ -76,7 +76,7 @@ export const PageLayout: React.FC<Props> = ({
         {isFlexUsed && (
           <Flex
             vertical
-            className="h-full p-4"
+            className="h-full"
             justify={isCentered || isLoading ? 'center' : undefined}
             align={isCentered || isLoading ? 'center' : undefined}
             gap={gap}
@@ -87,7 +87,7 @@ export const PageLayout: React.FC<Props> = ({
           </Flex>
         )}
 
-        {!isFlexUsed && <div className="h-full p-4">{children}</div>}
+        {!isFlexUsed && <div className="h-full">{children}</div>}
       </Col>
     </Row>
   )

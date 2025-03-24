@@ -72,7 +72,8 @@ const PricingCard = (props: Package) => {
             {title}
           </h4>
           <p className="mt-3 text-4xl font-bold text-black dark:text-white md:text-4xl">
-            <span className="text-sm font-normal">$</span>
+            <span className="text-sm font-normal">
+XAF</span>
             {monthly}
             <span className="text-sm font-normal text-slate-600 dark:text-slate-400">
               /month

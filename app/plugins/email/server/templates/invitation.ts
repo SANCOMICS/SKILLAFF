@@ -1,6 +1,6 @@
 export const TemplateInvitationToOrganization = `
 <Card.Header>
-  <h2>Welcome to Marblism Tasks</h2>
+  <h2>Welcome to SKILLFLOW</h2>
   <hr />
 </Card.Header>
 
@@ -12,6 +12,6 @@ export const TemplateInvitationToOrganization = `
 </Card.Body>
 
 <Card.Footer>
-  <p>Sent by Marblism Tasks</p>
+  <p>Sent by SKILLFLOW</p>
 </Card.Footer>
   `.trim()

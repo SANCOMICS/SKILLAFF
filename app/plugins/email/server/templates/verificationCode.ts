@@ -17,6 +17,6 @@ export const TemplateVerificationCode = `
 </Card.Body>
 
 <Card.Footer>
-  <p>Sent by Marblism Tasks</p>
+  <p>Sent bY SKILLFLOW</p>
 </Card.Footer>
   `.trim()

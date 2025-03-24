@@ -1,4 +1,9 @@
-import { GoogleOutlined, LoginOutlined } from '@ant-design/icons'
+import { TikTokIcon } from '@/designSystem/ui/TikTokIcon'
+import {
+  GoogleOutlined,
+  LoginOutlined,
+  YoutubeOutlined,
+} from '@ant-design/icons'
 import { Button, Flex } from 'antd'
 import React from 'react'
 import { Api } from '~/core/trpc'
@@ -16,6 +21,10 @@ export const SocialButtons: React.FC = () => {
     switch (props.name) {
       case 'google':
         return <GoogleOutlined />
+      case 'youtube':
+        return <YoutubeOutlined />
+      case 'tiktok':
+        return <TikTokIcon />
       default:
         return <LoginOutlined />
     }
