@@ -8,8 +8,8 @@
     "init": "pnpm install && pnpm run docker:init ; pnpm run env:init ; pnpm run crud:sync && pnpm run database:sync:dev && pnpm run database:seed",
     "dev": "rm -rf build && rm -rf node_modules/.vite && tsx server/index.ts",
     "debug": "NODE_OPTIONS=--inspect-brk tsx server/index.ts",
-    "start": "PORT=8099 NODE_ENV=production node ./build/server/index.js",
-    "build": "remix vite:build",
+    "start": "pnpm run database:sync:dev && node ./build/server/index.js",
+    "build": "remix vite:build && pnpm run crud:sync",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "check": "pnpm run check:code ; pnpm run check:models",
     "check:code": "tsc ; eslint . --ext .js,.jsx,.ts,.tsx",
@@ -106,7 +106,8 @@
     "vite-tsconfig-paths": "^5.0.1"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=20.0.0",
+    "pnpm": "9.9.0"
   },
   "zenstack": {
     "schema": "./models/schema.zmodel"
