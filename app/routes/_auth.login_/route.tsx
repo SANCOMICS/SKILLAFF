@@ -161,6 +161,17 @@ export default function LoginPage() {
             <Typography.Text>Sign up</Typography.Text>
           </Flex>
         </Button>
+        <Button
+          ghost
+          style={{ border: 'none' }}
+          onClick={() => window.location.href = 'https://skillflow.online/login/'}
+        >
+          <Flex gap="small" justify="center">
+            <Typography.Text type="secondary">Issue signing in?</Typography.Text>
+            <Typography.Text>Click here then try again!</Typography.Text>
+          </Flex>
+        </Button>
+
       </Flex>
     </Flex>
   )
