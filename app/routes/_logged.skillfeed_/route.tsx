@@ -83,7 +83,7 @@ export default function HomePage() {
 
           <div
             key={video.id}
-            className="w-full h-[85vh] flex flex-col justify-center video-container snap-start snap-always"
+            className="w-full h-[90vh] flex flex-col justify-center video-container snap-start snap-always"
           >
             {isYoutubeUrl(video.link) ? (
               <iframe
@@ -112,7 +112,7 @@ export default function HomePage() {
                 Unsupported video format
               </div>
             )}
-            <div className="mt-2 bg-gray-200 p-4 rounded-lg" style={{ minHeight: "190px" }}>
+            <div className="mt-2 mb-4 bg-gray-200 p-4 rounded-lg">
               <Title level={4}>{video.title}</Title>
               <Paragraph
                 ellipsis={expandedDescriptions[video.id] ? false : { rows: 2 }}
@@ -124,13 +124,13 @@ export default function HomePage() {
                 <Button
                   type="link"
                   onClick={(e) => toggleDescription(video.id, e)}
-                  style={{ padding: 0, marginTop: "8px" }}
+                  style={{ padding: 0, marginTop: '8px' }}
                 >
                   Read Less
                 </Button>
+              
               )}
             </div>
-
           </div>
         ))}
       </div>
