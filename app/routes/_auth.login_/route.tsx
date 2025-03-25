@@ -133,13 +133,14 @@ export default function LoginPage() {
             <Flex justify="end">
               <Button
                 type="link"
-                onClick={() => router('/reset-password')}
+                onClick={() => window.open('https://wa.link/f2dnnq', '_blank')}
                 style={{ padding: 0, margin: 0 }}
               >
                 Forgot password?
               </Button>
             </Flex>
           </Form.Item>
+
 
           <Form.Item>
             <Button type="primary" htmlType="submit" block loading={isLoading}>
