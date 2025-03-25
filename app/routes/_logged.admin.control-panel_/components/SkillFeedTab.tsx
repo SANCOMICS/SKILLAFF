@@ -74,10 +74,15 @@ export default function SkillFeedTab() {
       width: '150px',
       ellipsis: true,
       render: (text, record) => {
-        if (editingVideo?.id === record.id) return text;
-        return <div className="whitespace-normal">{text.length > 198 ? `${text.slice(0, 198)}...` : text}</div>;
+        const truncatedText = text.length > 198 ? `${text.slice(0, 198)}...` : text;
+        return (
+          <div className="whitespace-normal">
+            {editingVideo?.id === record.id ? text.slice(0, 520) : truncatedText}
+          </div>
+        );
       }
     },
+    
     {
       title: 'Link',
       dataIndex: 'link',
@@ -150,10 +155,23 @@ export default function SkillFeedTab() {
             label="Description"
             rules={[
               { required: true, message: 'Please input video description!' },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (value && value.length > 520) {
+                    return Promise.reject(new Error('Description must be 520 characters or fewer!'))
+                  }
+                  return Promise.resolve()
+                }
+              })
             ]}
           >
-            <Input.TextArea />
+            <Input.TextArea
+              maxLength={520}
+              showCount
+              placeholder="Enter your video description (max 520 characters)"
+            />
           </Form.Item>
+
 
           <Form.Item
             name="link"
