@@ -106,8 +106,8 @@
     "vite-tsconfig-paths": "^5.0.1"
   },
   "engines": {
-    "node": ">=20.0.0",
-    "pnpm": "9.9.0"
+    "node": ">=20.0.0"
+    
   },
   "zenstack": {
     "schema": "./models/schema.zmodel"

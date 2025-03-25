@@ -2,6 +2,7 @@ import { initTRPC, TRPCError } from '@trpc/server'
 import { FetchCreateContextFnOptions } from '@trpc/server/adapters/fetch'
 import superjson from 'superjson'
 import { ZodError } from 'zod'
+import { Context } from '@/core/context'
 import { createTrpcContext } from '~/core/authentication/server/context'
 
 const createContext = async (options: FetchCreateContextFnOptions) => {
@@ -42,3 +43,7 @@ export const Trpc = {
   procedure,
   createContext,
 }
+
+export const t = initTRPC.context<Context>().create({
+  transformer: superjson,
+})

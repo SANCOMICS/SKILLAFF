@@ -71,7 +71,7 @@ export default function HomePage() {
                   /(youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/,
                   'youtube.com/embed/$2',
                 )}
-                className="w-full h-[90vh] mx-auto rounded-lg"
+                className="w-full h-[60vh] mx-auto rounded-lg mt-4"
                 width="100%"
                 height="100%"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

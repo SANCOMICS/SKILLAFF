@@ -11,7 +11,7 @@ const getSession = async (options: { accessToken: string }) => {
     const token = options.accessToken
 
     if (!token) {
-      throw new Error()
+      throw new Error('No token found')
     }
 
     const { userId } = jwt.verify(
@@ -31,7 +31,7 @@ const getSession = async (options: { accessToken: string }) => {
       },
     })
 
-    return { user }
+    return { user, userId }  // Include userId here
   } catch (error) {
     return {}
   }

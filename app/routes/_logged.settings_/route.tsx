@@ -23,7 +23,10 @@ const { Title, Text } = Typography
 
 export default function SettingsPage() {
   const { user } = useUserContext()
-  const [form] = Form.useForm()
+  const [profileForm] = Form.useForm()
+  const [passwordForm] = Form.useForm()
+  const [payoutForm] = Form.useForm()
+
 
   const { data: userData, refetch } = Api.user.findFirst.useQuery({
     where: { id: user?.id },
@@ -41,6 +44,7 @@ export default function SettingsPage() {
   })
 
   const { mutateAsync: updateUser } = Api.user.update.useMutation()
+  const { mutateAsync: updatePassword } = Api.authentication.updatePassword.useMutation()
   const { mutateAsync: createSocialAccount } =
     Api.socialAccount.create.useMutation()
   const { mutateAsync: deleteSocialAccount } =
@@ -75,16 +79,52 @@ export default function SettingsPage() {
           where: { id: user.id },
           data: {
             name: values.name,
-            email: values.email,
+            
           },
         })
         message.success('Profile updated successfully')
         refetch()
       }
-    } catch (error) {
-      message.error('Failed to update profile')
+    } catch (error: any) {
+      const errorMessage =
+        error.data?.code === 'UNAUTHORIZED'
+          ? 'Current password is incorrect!'
+          : error.data?.message || 'Failed to update password'
+    
+      message.error(errorMessage)
+    }
+    
+  }
+
+  const handlePasswordChange = async (values: any) => {
+    const { currentPassword, newPassword, confirmPassword } = values
+
+    // Check if new password matches confirm password
+    if (newPassword !== confirmPassword) {
+      message.error('New passwords do not match!')
+      return
+    }
+
+    try {
+      // Call API to update password
+      await updatePassword({
+        userId: user?.id,
+        currentPassword,
+        newPassword,
+      })
+
+      message.success('Password updated successfully')
+      passwordForm.resetFields()
+    } catch (error: any) {
+      if (error.data?.code === 'UNAUTHORIZED') {
+        message.error('Current password is incorrect!')
+      } else {
+        message.error('Failed to update password')
+      }
     }
   }
+  
+  
 
   const handleConnectSocial = async (platform: string) => {
     try {
@@ -128,7 +168,7 @@ export default function SettingsPage() {
         phoneNumber: values.phoneNumber || ''
       })
       message.success('Payout settings saved successfully')
-      form.resetFields(['phoneNumber'])
+      payoutForm.resetFields(['phoneNumber'])
     } catch (error) {
       message.error('Failed to save payout settings')
     }
@@ -163,7 +203,7 @@ export default function SettingsPage() {
                 </Typography.Text>
               </div>
               <Form
-                form={form}
+                form={profileForm}
                 layout="vertical"
                 initialValues={{
                   name: userData?.name,
@@ -174,9 +214,7 @@ export default function SettingsPage() {
                 <Form.Item label="Name" name="name">
                   <Input placeholder="Enter your name" />
                 </Form.Item>
-                <Form.Item label="Email" name="email">
-                  <Input placeholder="Enter your email" />
-                </Form.Item>
+               
                 <Space>
                   <Button type="primary" htmlType="submit">
                     <i className="las la-save"></i> Save Changes
@@ -328,7 +366,7 @@ export default function SettingsPage() {
               }
               style={{ marginTop: 24 }}
             >
-              <Form layout="vertical" onFinish={handlePayoutSettingsSubmit}>
+              <Form form={payoutForm} layout="vertical" onFinish={handlePayoutSettingsSubmit}>
                 <Form.Item
                   label="Phone Number"
                   name="phoneNumber"
@@ -347,6 +385,55 @@ export default function SettingsPage() {
                   <Button type="primary" htmlType="submit">
                     <i className="las la-save"></i> Save Payout Settings
                   </Button>
+                </Form.Item>
+              </Form>
+            </Card>
+          </Col>
+
+          <Col xs={24}>
+            <Card
+              title={
+                <>
+                  <i className="las la-key"></i> Change Passwordd
+                </>
+              }
+              style={{ marginTop: 24 }}
+            >
+             <Form
+                form={passwordForm}
+                layout="vertical"
+                onFinish={handlePasswordChange}
+              >
+                <Form.Item
+                  label="Current Password"
+                  name="currentPassword"
+                  rules={[{ required: true, message: 'Current password is required' }]}
+                >
+                  <Input.Password placeholder="Enter your current password" />
+                </Form.Item>
+
+                <Form.Item
+                  label="New Password"
+                  name="newPassword"
+                  rules={[{ required: true, message: 'New password is required' }]}
+                >
+                  <Input.Password placeholder="Enter your new password" />
+                </Form.Item>
+
+                <Form.Item
+                  label="Confirm New Password"
+                  name="confirmPassword"
+                  rules={[{ required: true, message: 'Please confirm your new password' }]}
+                >
+                  <Input.Password placeholder="Confirm your new password" />
+                </Form.Item>
+
+                <Form.Item>
+                  <Space>
+                    <Button type="primary" htmlType="submit">
+                      <i className="las la-save"></i> Save New Password
+                    </Button>
+                  </Space>
                 </Form.Item>
               </Form>
             </Card>

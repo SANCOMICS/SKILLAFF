@@ -207,6 +207,51 @@ export const AuthenticationRouter = Trpc.createRouter({
       return { id: user.id }
     }),
 
+    updatePassword: Trpc.procedure
+    .input(z.object({
+      userId: z.string(),
+      currentPassword: z.string(),
+      newPassword: z.string(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const { userId, currentPassword, newPassword } = input
+      // Implement the password update logic here
+      // You should retrieve the user from the database by userId,
+      // validate the current password, and update it with the new password.
+      
+      // Example:
+      const user = await ctx.databaseUnprotected.user.findUnique({
+        where: { id: userId },
+      })
+
+      if (!user) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'User not found',
+        })
+      }
+
+      const isValid = await Bcrypt.compare(currentPassword, user.password)
+
+      if (!isValid) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'Current password is incorrect',
+        })
+      }
+
+      const passwordHashed = hashPassword(newPassword)
+
+      await ctx.databaseUnprotected.user.update({
+        where: { id: user.id },
+        data: { password: passwordHashed },
+      })
+
+      return { success: true }
+    }),
+
+    
+
   sendResetPasswordEmail: Trpc.procedurePublic
     .input(z.object({ email: z.string() }))
     .mutation(async ({ ctx, input }) => {
@@ -284,6 +329,7 @@ export const AuthenticationRouter = Trpc.createRouter({
       return { success: true }
     }),
 })
+
 
 const checkPassword = (password: string) => {
   const isValid = password?.length >= 6
