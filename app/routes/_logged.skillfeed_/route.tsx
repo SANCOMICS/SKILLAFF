@@ -11,7 +11,13 @@ const detectUrls = (text: string) => {
   return text.split(urlRegex).map((part, i) => {
     if (part.match(urlRegex)) {
       return (
-        <Link key={i} href={part} target="_blank">
+        <Link
+          key={i}
+          href={part}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()} // prevents parent click handlers
+        >
           {part}
         </Link>
       )
@@ -19,6 +25,7 @@ const detectUrls = (text: string) => {
     return part
   })
 }
+
 
 const isYoutubeUrl = (url: string) => {
   return url.includes('youtube.com/watch?v=') || url.includes('youtu.be/')
@@ -34,15 +41,28 @@ export default function HomePage() {
 
   const { data: videos } = Api.skillFeedVideo.findMany.useQuery()
 
-  const shuffledVideos = videos ? shuffleArray([...videos]) : []
+  // const shuffledVideos = videos ? shuffleArray([...videos]) : []
+  const [shuffledVideos, setShuffledVideos] = useState<any[]>([])
+
+  useEffect(() => {
+    if (videos) {
+      setShuffledVideos(shuffleArray([...videos]))
+    }
+  }, [videos])
+
 
   const [expandedDescriptions, setExpandedDescriptions] = useState<{
     [key: string]: boolean
   }>({})
 
-  const toggleDescription = (videoId: string) => {
+  // const toggleDescription = (videoId: string) => {
+  //   setExpandedDescriptions(prev => ({ ...prev, [videoId]: !prev[videoId] }))
+  // }
+  const toggleDescription = (videoId: string, event?: React.MouseEvent) => {
+    event?.preventDefault() // Ensure no unwanted page reloads
     setExpandedDescriptions(prev => ({ ...prev, [videoId]: !prev[videoId] }))
   }
+  
 
   useEffect(() => {
     const loadTikTokScript = () => {
@@ -92,7 +112,7 @@ export default function HomePage() {
                 Unsupported video format
               </div>
             )}
-            <div className="mt-2 bg-gray-200 p-4 rounded-lg">
+            <div className="mt-1 mb-4 bg-gray-200 p-4 rounded-lg">
               <Title level={4}>{video.title}</Title>
               <Paragraph
                 ellipsis={expandedDescriptions[video.id] ? false : { rows: 2 }}
@@ -103,11 +123,12 @@ export default function HomePage() {
               {expandedDescriptions[video.id] && (
                 <Button
                   type="link"
-                  onClick={() => toggleDescription(video.id)}
+                  onClick={(e) => toggleDescription(video.id, e)}
                   style={{ padding: 0, marginTop: '8px' }}
                 >
                   Read Less
                 </Button>
+              
               )}
             </div>
           </div>
