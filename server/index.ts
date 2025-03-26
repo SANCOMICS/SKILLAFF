@@ -1,6 +1,7 @@
 import { createRequestHandler } from '@remix-run/express'
 import compression from 'compression'
 import express from 'express'
+import path from 'path'
 import { createServer } from 'http'
 import morgan from 'morgan'
 import { AuthenticationServer } from '~/core/authentication/server'
@@ -10,6 +11,7 @@ const app = express()
 const httpServer = createServer(app)
 
 const isProduction = process.env.NODE_ENV === 'production'
+
 
 const viteDevServer = isProduction
   ? undefined
@@ -54,6 +56,8 @@ if (viteDevServer) {
 app.use(express.static('build/client', { maxAge: '1h' }))
 
 app.use(morgan('tiny'))
+
+app.use('/upload', express.static(path.join(__dirname, 'upload')))
 
 AuthenticationServer.expressSetup(app)
 
