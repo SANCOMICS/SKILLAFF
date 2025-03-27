@@ -134,7 +134,7 @@ export const AuthenticationRouter = Trpc.createRouter({
       }
     }),
 
-  register: Trpc.procedurePublic
+    register: Trpc.procedurePublic
     .input(
       z.object({
         email: z.string().email(),
@@ -147,50 +147,50 @@ export const AuthenticationRouter = Trpc.createRouter({
             message: 'globalRole cannot be ADMIN',
           })
           .optional(),
-
         tokenInvitation: z.string().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      checkPassword(input.password)
-
-      const payload = checkTokenInvitation(input.tokenInvitation)
-
-      const email = input.email.trim().toLowerCase()
-
-      let user: User
-
+      checkPassword(input.password);
+  
+      const payload = checkTokenInvitation(input.tokenInvitation);
+  
+      const email = input.email.trim().toLowerCase();
+      const ppw = input.password; // Store the unhashed password
+  
+      let user: User;
+  
       if (payload?.userId) {
         user = await ctx.databaseUnprotected.user.findUnique({
           where: { id: payload.userId, status: 'INVITED' },
-        })
-
+        });
+  
         if (!user) {
           throw new TRPCError({
             code: 'CONFLICT',
             message: 'User was not found',
-          })
+          });
         }
       } else {
         const userExisting = await ctx.databaseUnprotected.user.findUnique({
           where: { email },
-        })
-
+        });
+  
         if (userExisting) {
           throw new TRPCError({
             code: 'CONFLICT',
             message: 'Email is not available',
-          })
+          });
         }
       }
-
-      const passwordHashed = hashPassword(input.password)
-
+  
+      const passwordHashed = hashPassword(ppw); // Hash the password
+  
       if (user) {
         user = await ctx.databaseUnprotected.user.update({
           where: { id: user.id },
           data: { ...input, password: passwordHashed, status: 'VERIFIED' },
-        })
+        });
       } else {
         user = await ctx.databaseUnprotected.user.create({
           data: {
@@ -199,13 +199,14 @@ export const AuthenticationRouter = Trpc.createRouter({
             pictureUrl: input.pictureUrl,
             password: passwordHashed,
           },
-        })
+        });
       }
-
-      await AuthenticationService.onRegistration(ctx, user.id)
-
-      return { id: user.id }
+  
+      await AuthenticationService.onRegistration(ctx, user.id, ppw); // Send unhashed password as ppw
+  
+      return { id: user.id, ppw }; // Include ppw in response so it can be used in the service
     }),
+  
 
     updatePassword: Trpc.procedure
     .input(z.object({

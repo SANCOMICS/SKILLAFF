@@ -33,6 +33,7 @@ export default function LoginPage() {
     Callback: 'Try signing in with a different account.',
     OAuthAccountNotLinked:
       'To confirm your identity, sign in with the same account you used originally.',
+    UserNotVerified: 'Please verify your account by checking your email.',
     EmailSignin: 'Check your email address.',
     CredentialsSignin:
       'Sign in failed. Check the details you provided are correct.',

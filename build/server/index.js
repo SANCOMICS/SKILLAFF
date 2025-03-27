@@ -403,9 +403,6 @@ var Trpc = {
   procedure,
   createContext
 };
-var t = initTRPC.context().create({
-  transformer: superjson
-});
 
 // app/plugins/email/server/providers/mailjet/mailjet.provider.ts
 import Mailjet from "node-mailjet";
@@ -418,57 +415,48 @@ var MailjetProvider = class {
   initialise() {
     const isProduction4 = process.env.NODE_ENV === "production";
     if (!isProduction4) {
-      console.warn(`Mailjet is disabled in development`);
-      return;
+      console.warn(`Mailjet is running in development mode`);
     }
     try {
       const apiKey = process.env.SERVER_EMAIL_MAILJET_API_KEY;
       const secretKey = process.env.SERVER_EMAIL_MAILJET_SECRET_KEY;
       if (!apiKey || !secretKey) {
-        console.warn(
-          `Set SERVER_EMAIL_MAILJET_API_KEY and SERVER_EMAIL_MAILJET_SECRET_KEY to activate Mailjet`
-        );
+        console.warn(`Set SERVER_EMAIL_MAILJET_API_KEY and SERVER_EMAIL_MAILJET_SECRET_KEY to activate Mailjet`);
         return;
       }
-      this.client = new Mailjet({ apiKey, apiSecret: secretKey });
+      this.client = Mailjet.apiConnect(apiKey, secretKey);
       console.log(`Mailjet service active`);
     } catch (error) {
-      console.error(`Could not start Mailjet service`);
-      console.error(error);
+      console.error(`Could not start Mailjet service`, error);
     }
   }
   async send(options) {
+    if (!options.templateId && !options.content) {
+      throw new Error("Either templateId or content must be provided");
+    }
     const message = this.buildMessage(options);
     return this.client.post("send", { version: "v3.1" }).request({
-      Messages: [
-        {
-          ...message
-        }
-      ]
+      Messages: [message]
     }).then((result) => {
-      console.log(`Emails sent`, result);
+      console.log(`Emails sent`, result.body);
     }).catch((error) => {
-      console.error(`Could not send emails (${error.statusCode})`);
+      console.error(`Could not send emails (${error.statusCode}):`, error.response?.body);
     });
   }
   buildMessage(options) {
     const from = {
-      Email: "no-reply@marblism.com",
-      Name: "Marblism"
+      Email: "mbiyber@gmail.com",
+      Name: "SKILLFLOW"
     };
     const to = options.to.map((item) => ({ Email: item.email, Name: item.name }));
     const message = {
       From: from,
       To: to,
-      Subject: options.subject,
-      HTMLPart: void 0,
-      Variables: void 0,
-      TemplateLanguage: void 0,
-      templateId: void 0
+      Subject: options.subject
     };
     if (options.templateId) {
       message.TemplateLanguage = true;
-      message.templateId = options.templateId;
+      message.TemplateID = options.templateId;
       message.Variables = options.variables;
     } else {
       message.HTMLPart = options.content;
