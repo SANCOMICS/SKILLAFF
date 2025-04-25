@@ -18,8 +18,8 @@ INSERT INTO "User" (
 "password"
 ) VALUES (
   '21a857f1-ba5f-4435-bcf6-f910ec07c0dc',
-  'test@test.com',
-  'John Doe',
+  'testingkingrules@testisballs.com',
+  'John Dorito',
   'ADMIN',
   'https://i.imgur.com/sdjqd62.jpeg',
 

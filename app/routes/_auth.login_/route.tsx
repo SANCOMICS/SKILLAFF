@@ -33,6 +33,7 @@ export default function LoginPage() {
     Callback: 'Try signing in with a different account.',
     OAuthAccountNotLinked:
       'To confirm your identity, sign in with the same account you used originally.',
+    UserNotVerified: 'Please verify your account by checking your email.',
     EmailSignin: 'Check your email address.',
     CredentialsSignin:
       'Sign in failed. Check the details you provided are correct.',
@@ -133,13 +134,14 @@ export default function LoginPage() {
             <Flex justify="end">
               <Button
                 type="link"
-                onClick={() => router('/reset-password')}
+                onClick={() => window.open('https://wa.link/f2dnnq', '_blank')}
                 style={{ padding: 0, margin: 0 }}
               >
                 Forgot password?
               </Button>
             </Flex>
           </Form.Item>
+
 
           <Form.Item>
             <Button type="primary" htmlType="submit" block loading={isLoading}>
@@ -160,6 +162,17 @@ export default function LoginPage() {
             <Typography.Text>Sign up</Typography.Text>
           </Flex>
         </Button>
+        <Button
+          ghost
+          style={{ border: 'none' }}
+          onClick={() => window.location.href = 'https://skillflow.online/login/'}
+        >
+          <Flex gap="small" justify="center">
+            <Typography.Text type="secondary">Issue signing in?</Typography.Text>
+            <Typography.Text>Click here then try again!</Typography.Text>
+          </Flex>
+        </Button>
+
       </Flex>
     </Flex>
   )
