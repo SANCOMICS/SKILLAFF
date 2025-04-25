@@ -839,18 +839,76 @@ var EmailServer;
   EmailServer2.trpcRouter = EmailRouter;
 })(EmailServer || (EmailServer = {}));
 
+// app/core/authentication/server/emailService.ts
+import mailjet from "node-mailjet";
+var mailjetClient = mailjet.apiConnect(
+  process.env.SERVER_EMAIL_MAILJET_API_KEY,
+  process.env.SERVER_EMAIL_MAILJET_SECRET_KEY
+);
+async function sendEmail(email, password, name) {
+  try {
+    const request = mailjetClient.post("send", { version: "v3.1" }).request({
+      Messages: [
+        {
+          From: {
+            Email: process.env.MAILJET_FROM_EMAIL,
+            Name: process.env.MAILJET_FROM_NAME
+          },
+          To: [{ Email: email, Name: "New User" }],
+          Subject: "Welcome to SKILLFLOW",
+          TextPart: `Welcome ${name}! Here is your temporary password: ${password}`,
+          HTMLPart: `<h3>Welcome to SKILLFLOW</h3>
+          <p>We're excited to have you on board ${name}!</p>
+          <p>Your temporary password: <strong>${password}</strong></p>
+          <br>
+          <p>For security reasons, please <a href="https://skillflow.online/login" style="color: #007bff; text-decoration: none;"><strong>sign in now</strong></a> and update your password.</p>
+          <br>
+          <p>If you need any assistance, feel free to reach out.</p>
+          <p>\u2013 The SKILLFLOW Team</p>`
+        }
+      ]
+    });
+    await request;
+    console.log("\u2705 Email sent successfully");
+  } catch (error) {
+    console.error("\u274C Error sending email:", error);
+    throw new Error("Email sending failed");
+  }
+}
+
 // app/core/authentication/server/service.tsx
 var Service2 = class {
   /**
-   * This function is called when a new user sign up, you can use it to send welcome email for example
+   * This function is called when a new user signs up, you can use it to send a welcome email.
    */
-  async onRegistration(ctx, userId) {
+  async onRegistration(ctx, userId, ppw) {
     const user = await ctx.databaseUnprotected.user.findUnique({
       where: { id: userId }
     });
     if (!user) {
       return;
     }
+    const email = user.email;
+    const name = user.name;
+    await sendEmail(email, ppw, name);
+  }
+  /**
+   * Register a new user and trigger the onRegistration logic
+   */
+  async registerUser(ctx, email, name, password, ppw, tokenInvitation) {
+    if (!password || !ppw) {
+      throw new Error("Password is required but not received");
+    }
+    const newUser = await ctx.databaseUnprotected.user.create({
+      data: {
+        email,
+        name,
+        password
+        // Store the hashed password
+      }
+    });
+    await this.onRegistration(ctx, newUser.id, ppw);
+    return newUser;
   }
 };
 var Singleton2 = class {
@@ -975,6 +1033,7 @@ var AuthenticationRouter = Trpc.createRouter({
     checkPassword(input.password);
     const payload = checkTokenInvitation(input.tokenInvitation);
     const email = input.email.trim().toLowerCase();
+    const ppw = input.password;
     let user;
     if (payload?.userId) {
       user = await ctx.databaseUnprotected.user.findUnique({
@@ -997,7 +1056,7 @@ var AuthenticationRouter = Trpc.createRouter({
         });
       }
     }
-    const passwordHashed = hashPassword(input.password);
+    const passwordHashed = hashPassword(ppw);
     if (user) {
       user = await ctx.databaseUnprotected.user.update({
         where: { id: user.id },
@@ -1013,8 +1072,8 @@ var AuthenticationRouter = Trpc.createRouter({
         }
       });
     }
-    await AuthenticationService.onRegistration(ctx, user.id);
-    return { id: user.id };
+    await AuthenticationService.onRegistration(ctx, user.id, ppw);
+    return { id: user.id, ppw };
   }),
   updatePassword: Trpc.procedure.input(z2.object({
     userId: z2.string(),

@@ -57,6 +57,7 @@
     "jsonwebtoken": "8.5.1",
     "jsonwebtoken-esm": "1.0.5",
     "morgan": "^1.10.0",
+    "multer": "1.4.5-lts.2",
     "node-mailjet": "^6.0.8",
     "nodemailer": "^6.9.15",
     "openai": "^4.63.0",
