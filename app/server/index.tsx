@@ -1,12 +1,12 @@
-import { createRouter } from '@/core/.marblism/zenstack/routers'
-import { AuthenticationServer } from '@/core/authentication/server'
-import { ConfigurationServer } from '@/core/configuration/server'
-import { Trpc } from '@/core/trpc/base'
-import { AiServer } from '@/plugins/ai/server'
-import { EmailServer } from '@/plugins/email/server'
-import { UploadServer } from '@/plugins/upload/server'
-import { FapshiRouter } from '@/core/payment/fapshi/router'
-import { PaymentServer } from '~/plugins/payment/server'
+import { createRouter } from "@/core/.marblism/zenstack/routers";
+import { AuthenticationServer } from "@/core/authentication/server";
+import { ConfigurationServer } from "@/core/configuration/server";
+import { Trpc } from "@/core/trpc/base";
+import { AiServer } from "@/plugins/ai/server";
+import { EmailServer } from "@/plugins/email/server";
+import { UploadServer } from "@/plugins/upload/server";
+import { FapshiRouter } from "@/core/payment/fapshi/router";
+import { PaymentServer } from "~/plugins/payment/server";
 
 export const appRouter = Trpc.mergeRouters(
   createRouter(Trpc.createRouter, Trpc.procedurePublic),
@@ -20,7 +20,7 @@ export const appRouter = Trpc.mergeRouters(
     email: EmailServer.trpcRouter,
     billing: PaymentServer.trpcRouter,
     fapshi: FapshiRouter,
-  }),
-)
+  })
+);
 
-export type AppRouter = typeof appRouter
+export type AppRouter = typeof appRouter;
