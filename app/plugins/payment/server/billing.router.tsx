@@ -3,11 +3,10 @@ import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 import { Trpc } from '~/core/trpc/base'
 import { PaymentService } from './payment.service'
-import { COMMISSION_PERCENTAGE } from './providers/flutterwave'
 
 /**
  * @provider BillingApi
- * @description API for payment operations using Flutterwave
+ * @description API for payment operations using Fapshi
  * @function processWithdrawal - Processes withdrawal to mobile money
  * @function getWalletBalance - Gets current wallet balance
  * @function initiateDeposit - Initiates deposit to wallet via mobile money
@@ -18,13 +17,6 @@ export const BillingRouter = Trpc.createRouter({
   getWalletBalance: Trpc.procedure
     .input(z.object({}))
     .query(async ({ ctx }) => {
-      if (!PaymentService.isActive()) {
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: 'Payment provider not configured',
-        })
-      }
-
       const userId = ctx.session?.user?.id
       const user = await ctx.database.user.findFirstOrThrow({
         where: { id: userId },
@@ -40,13 +32,6 @@ export const BillingRouter = Trpc.createRouter({
         .regex(/^(237|\+237)?[6-9][0-9]{8}$/, 'Invalid Cameroon phone number')
     }))
     .mutation(async ({ ctx, input }) => {
-      if (!PaymentService.isActive()) {
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: 'Payment provider not configured',
-        })
-      }
-
       const userId = ctx.session?.user?.id
       const user = await ctx.database.user.findFirstOrThrow({
         where: { id: userId },
@@ -54,7 +39,6 @@ export const BillingRouter = Trpc.createRouter({
 
       return PaymentService.depositToWallet(user, input.amount, input.phoneNumber)
     }),
-
 
   processWithdrawal: Trpc.procedure
     .input(
@@ -65,13 +49,6 @@ export const BillingRouter = Trpc.createRouter({
       }).required()
     )
     .mutation(async ({ ctx, input }) => {
-      if (!PaymentService.isActive()) {
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: 'Payment provider not configured',
-        })
-      }
-
       try {
         const userId = ctx.session?.user?.id
         const user = await ctx.database.user.findFirstOrThrow({
@@ -80,9 +57,9 @@ export const BillingRouter = Trpc.createRouter({
 
         // Process withdrawal
         return PaymentService.withdrawFromWallet({
-          customerId: user.id as string,
-          amount: input.amount as string,
-          phoneNumber: input.phoneNumber as string
+          customerId: user.id,
+          amount: input.amount,
+          phoneNumber: input.phoneNumber
         })
       } catch (error) {
         throw new TRPCError({
@@ -95,13 +72,6 @@ export const BillingRouter = Trpc.createRouter({
   getReferralCommissions: Trpc.procedure
     .input(z.object({}))
     .query(async ({ ctx }) => {
-      if (!PaymentService.isActive()) {
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: 'Payment provider not configured',
-        })
-      }
-
       const userId = ctx.session?.user?.id
       const referrals = await ctx.database.referral.findMany({
         where: { referrerId: userId },
@@ -122,7 +92,7 @@ export const BillingRouter = Trpc.createRouter({
         .reduce((total, referral) => {
           const commission = referral.transactions.reduce((sum, tx) => {
             if (tx.type === 'REFERRAL' && tx.status === 'COMPLETED') {
-              return sum + parseFloat(tx.amount || '0') * COMMISSION_PERCENTAGE
+              return sum + parseFloat(tx.amount || '0') * 0.1 // 10% commission
             }
             return sum
           }, 0)
@@ -130,26 +100,14 @@ export const BillingRouter = Trpc.createRouter({
         }, 0)
         .toString()
     }),
+
   findManyProducts: Trpc.procedurePublic.input(z.object({})).query(async () => {
-    if (!PaymentService.isActive()) {
-      throw new TRPCError({
-        code: 'BAD_REQUEST',
-        message: 'Payment provider not configured',
-      })
-    }
-    return PaymentService.findManyProducts()
+    return []
   }),
 
   findManyPayments: Trpc.procedure
     .input(z.object({}))
-    .query(async ({ ctx, input }) => {
-      if (!PaymentService.isActive()) {
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: 'Payment provider not configured',
-        })
-      }
-
+    .query(async ({ ctx }) => {
       const userId = ctx.session?.user?.id
       const user = await ctx.database.user.findFirstOrThrow({
         where: { id: userId },
@@ -160,14 +118,7 @@ export const BillingRouter = Trpc.createRouter({
 
   findManySubscriptions: Trpc.procedure
     .input(z.object({}))
-    .query(async ({ ctx, input }) => {
-      if (!PaymentService.isActive()) {
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: 'Payment provider not configured',
-        })
-      }
-
+    .query(async ({ ctx }) => {
       const userId = ctx.session?.user?.id
       const user = await ctx.database.user.findFirstOrThrow({
         where: { id: userId },
@@ -185,19 +136,10 @@ export const BillingRouter = Trpc.createRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      if (!PaymentService.isActive()) {
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: 'Payment provider not configured',
-        })
-      }
-
       const userId = ctx.session?.user?.id
       const user = await ctx.database.user.findFirstOrThrow({
         where: { id: userId },
       })
-
-      const urlRedirection = Configuration.getBaseUrl()
 
       const url = await PaymentService.createPaymentLink({
         user,
@@ -205,7 +147,7 @@ export const BillingRouter = Trpc.createRouter({
         metadata: {
           userId: user.id,
         },
-        urlRedirection,
+        urlRedirection: Configuration.getBaseUrl(),
         phoneNumber: input.phoneNumber
       })
 

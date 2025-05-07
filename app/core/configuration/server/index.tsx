@@ -1,11 +1,26 @@
 import { AuthenticationServer } from '~/core/authentication/server'
 import { Trpc } from '~/core/trpc/base'
 import { TRPCError } from '@trpc/server'
+import { Configuration } from '../index'
 
 type PublicVariables = {
   authenticationProviders: { name: string }[]
   [key: string]: any
 }
+
+const validateFapshiKeys = () => {
+  const requiredKeys = ['FAPSHI_BASE_URL', 'FAPSHI_API_USER', 'FAPSHI_API_KEY']
+  const missingKeys = requiredKeys.filter(key => !process.env[key])
+
+  if (missingKeys.length > 0) {
+    throw new Error(
+      `Missing required Fapshi environment variables: ${missingKeys.join(', ')}`
+    )
+  }
+}
+
+// Validate environment variables
+validateFapshiKeys()
 
 const validateFlutterwaveKeys = () => {
   const requiredKeys = ['FLW_PUBLIC_KEY', 'FLW_SECRET_KEY', 'FLW_ENCRYPTION_KEY']
@@ -51,3 +66,5 @@ export const trpcRouter = Trpc.createRouter({
 export const ConfigurationServer = {
   trpcRouter,
 }
+
+export { Configuration }

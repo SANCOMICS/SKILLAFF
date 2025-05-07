@@ -4,17 +4,22 @@ import { PageLayout } from '@/designSystem'
 import { useNavigate, useParams } from '@remix-run/react'
 import { Button, Card, List, Spin, Typography, message } from 'antd'
 import { ImageOptimizedClient } from '~/plugins/image-optimize/client'
+import { CoursePaymentModal } from '@/components/payment/CoursePaymentModal'
+import { useState } from 'react'
 
 const { Title, Text } = Typography
 
 export default function CoursePreviewPage() {
   const navigate = useNavigate()
-  const { isLoggedIn } = useUserContext()
+  const { isLoggedIn, user } = useUserContext()
   const { courseId } = useParams()
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false)
   const { data: course, isLoading } = Api.course.findUnique.useQuery({
     where: { id: courseId },
     include: { sections: { include: { videos: true } } },
   })
+
+  const { mutateAsync: createEnrollment } = Api.userCourse.create.useMutation()
 
   const handleGetNow = async (course: any) => {
     if (!isLoggedIn) {
@@ -23,12 +28,39 @@ export default function CoursePreviewPage() {
       return
     }
 
-    if (!course.paymentLink) {
-      message.warning('Payment link not available')
+    if (!course.price) {
+      message.warning('Course price not available')
       return
     }
 
-    window.location.href = course.paymentLink
+    setIsPaymentModalOpen(true)
+  }
+
+  const handlePaymentSuccess = async () => {
+    try {
+      await createEnrollment({
+        data: {
+          courseId: course.id,
+          userId: user.id,
+        },
+      })
+      message.success('Successfully enrolled in course')
+      navigate(`/courses/${course.id}`)
+    } catch (error: any) {
+      if (error.code === 'CONFLICT') {
+        message.error('You are already enrolled in this course')
+      } else {
+        message.error('Failed to enroll in course')
+      }
+    }
+  }
+
+  const handlePaymentError = (error: string) => {
+    message.error(error)
+  }
+
+  const handleUpgrade = () => {
+    navigate('/upgrade')
   }
 
   if (isLoading) {
@@ -110,12 +142,22 @@ export default function CoursePreviewPage() {
             <Button
               type="primary"
               size="large"
-              onClick={() => navigate('/upgrade')}
+              onClick={handleUpgrade}
             >
               Upgrade Now
             </Button>
           </div>
         </Card>
+
+        <CoursePaymentModal
+          isOpen={isPaymentModalOpen}
+          onClose={() => setIsPaymentModalOpen(false)}
+          courseId={course?.id}
+          courseTitle={course?.title}
+          amount={course?.price}
+          onSuccess={handlePaymentSuccess}
+          onError={handlePaymentError}
+        />
       </div>
     </PageLayout>
   )

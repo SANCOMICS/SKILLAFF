@@ -3,39 +3,44 @@ import {
   Product,
   WebhookResponse,
   Subscription,
-} from '../payment.type'
+} from "../payment.type";
 
 export type BankAccount = {
-  accountNumber: string
-  bankCode: string
-}
+  accountNumber: string;
+  bankCode: string;
+};
 
 export type ProviderCreatePaymentLinkOptions = {
-  customerId: string
-  productId: string
-  metadata?: Record<string, string>
-  urlRedirection?: string
-  phoneNumber: string
-}
+  userId: string;
+  amount: number;
+  phone: string;
+  email: string;
+  externalId: string;
+  message: string;
+  name: string;
+};
 
 export interface Provider {
-  createCustomer(customer: { email: string; name: string }): Promise<string>
-  createPaymentLink(options: ProviderCreatePaymentLinkOptions): Promise<string>
-  findManySubscriptions(customerId: string): Promise<Subscription[]>
-  findManyPayments(customerId: string): Promise<Payment[]>
-  findManyProducts(): Promise<Product[]>
-  onPayment(body: Buffer, sig: string): Promise<WebhookResponse>
-  isActive(): boolean
+  initiatePayment(options: ProviderCreatePaymentLinkOptions): Promise<{
+    transactionId: string;
+    message: string;
+  }>;
+  getPaymentStatus(transId: string): Promise<{
+    status: string;
+    message?: string;
+  }>;
+  handleWebhook(data: WebhookResponse): Promise<{ received: boolean }>;
+  getWalletBalance(userId: string): Promise<{ balance: string }>;
+  isActive(): boolean;
   withdrawFromWallet(options: {
-    customerId: string
-    amount: string
-    phoneNumber: string
-    bankAccount?: BankAccount
-  }): Promise<boolean>
-  getWalletBalance(customerId: string): Promise<{ balance: string }>
+    customerId: string;
+    amount: string;
+    phoneNumber: string;
+    bankAccount?: BankAccount;
+  }): Promise<boolean>;
   depositToWallet(options: {
-    customerId: string
-    amount: string
-    phoneNumber: string
-  }): Promise<boolean>
+    customerId: string;
+    amount: string;
+    phoneNumber: string;
+  }): Promise<boolean>;
 }

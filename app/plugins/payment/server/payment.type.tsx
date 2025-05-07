@@ -1,19 +1,35 @@
 export type WebhookResponse = {
-  userId?: string
-  customerId?: string
+  userId: string
+  transId: string
+  status: string
+  amount: number
+  medium: string
+  serviceName: string
+  revenue: number
+  payerName: string
+  email: string
+  redirectUrl: string
+  externalId: string
+  webhook: string
+  financialTransId: string
+  dateInitiated: string
+  dateConfirmed: string
 }
 
 export type Subscription = {
-  productId: string
-  dateExpired: string
+  id: string
   status: string
+  startDate: string
+  endDate: string
 }
 
 export type Payment = {
-  productId: string
-  amount: number
-  currency: string
-  date: string
+  id: string
+  amount: string
+  type: string
+  status: string
+  providerTransactionId: string
+  createdAt: string
 }
 
 export enum ProductType {
@@ -23,11 +39,7 @@ export enum ProductType {
 
 export type Product = {
   id: string
-  type: ProductType
   name: string
-  price: number
+  price: string
   description: string
-  interval?: string
-  coverUrl?: string
-  currency: string
 }

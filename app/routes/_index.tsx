@@ -35,7 +35,7 @@ export default function LandingPage() {
     },
     {
       heading: `Secure Payments`,
-      description: `Integrated Flutterwave payment system with bank-grade security ensures your transactions and earnings are always protected`,
+      description: `Integrated Fapshi payment system with secure mobile money transactions ensures your payments and earnings are always protected`,
       icon: <i className="las la-lock"></i>,
     },
     {

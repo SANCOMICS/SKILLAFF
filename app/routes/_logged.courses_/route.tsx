@@ -23,11 +23,11 @@ export default function CoursesPage() {
 
   const handleUpgrade = async () => {
     try {
-      if (premiumLink?.url) {
-        window.location.href = premiumLink.url
-      } else {
+      // if (premiumLink?.url) {
+      //   window.location.href = premiumLink.url
+      // } else {
         navigate('/upgrade')
-      }
+      // }
     } catch (error) {
       console.error('Error handling upgrade:', error)
       message.error('Failed to process upgrade request. Please try again.')
