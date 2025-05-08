@@ -9,13 +9,13 @@ import { RemixServer, useLocation, useParams, useNavigate, Link as Link$1, Outle
 import { isbot } from "isbot";
 import { renderToPipeableStream } from "react-dom/server";
 import React, { useEffect, useState, useContext, createContext as createContext$1, useRef } from "react";
+import Posthog from "posthog-js";
 import { QueryClient, QueryClientProvider, useMutation } from "@tanstack/react-query";
 import { httpBatchLink } from "@trpc/client";
 import superjson from "superjson";
 import { createTRPCReact as createTRPCReact$1 } from "@trpc/react-query";
-import { Result, Button, Flex, Typography, Divider, Layout as Layout$1, Spin, theme, ConfigProvider, message, Menu, Avatar, Tag, Row, Col, Form, Input, Upload, Switch, InputNumber, List, Space, Table, Modal, Card, Alert, Select, Tabs, Tooltip, Empty } from "antd";
+import { Result, Button, Flex, Typography, Divider, Layout as Layout$1, Spin, theme, ConfigProvider, message, Menu, Avatar, Tag, Row, Col, Form, Input, Upload, Switch, InputNumber, List, Space, Table, Modal, Alert, Card, Select, Tabs, Tooltip, Empty } from "antd";
 import { LoadingOutlined, TwitterCircleFilled, LinkedinFilled, ArrowRightOutlined, MenuOutlined, CloseOutlined, ArrowDownOutlined, CheckCircleFilled, StarFilled, StarOutlined, HomeOutlined, SettingOutlined, LogoutOutlined, PlusOutlined, EditOutlined, DeleteOutlined, YoutubeFilled, TikTokOutlined, FacebookFilled, CopyOutlined, UploadOutlined } from "@ant-design/icons";
-import Posthog from "posthog-js";
 import axios from "axios";
 import dayjs from "dayjs";
 import { ZodError, z } from "zod";
@@ -44,7 +44,6 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { toGeminiSchema } from "gemini-zod";
 import OpenaiSDK from "openai";
 import { zodResponseFormat } from "openai/helpers/zod";
-import Flutterwave from "flutterwave-node-v3";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import { twMerge } from "tailwind-merge";
 import clsx$1, { clsx } from "clsx";
@@ -1556,7 +1555,7 @@ const PageLayout = ({
     }
   );
 };
-const { Text: Text$a, Title: Title$d } = Typography;
+const { Text: Text$c, Title: Title$f } = Typography;
 const AppHeader = ({
   title = "SKILLFLOW",
   description
@@ -1564,38 +1563,44 @@ const AppHeader = ({
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsx(Flex, { justify: "center", children: /* @__PURE__ */ jsx(Logo, { height: "100" }) }),
     /* @__PURE__ */ jsxs(Flex, { vertical: true, align: "center", children: [
-      /* @__PURE__ */ jsx(Title$d, { level: 3, style: { margin: 0 }, children: title }),
-      description && /* @__PURE__ */ jsx(Text$a, { type: "secondary", children: description })
+      /* @__PURE__ */ jsx(Title$f, { level: 3, style: { margin: 0 }, children: title }),
+      description && /* @__PURE__ */ jsx(Text$c, { type: "secondary", children: description })
     ] })
   ] });
 };
-const isDevelopment = () => process.env.NODE_ENV === "development";
-const isProduction$1 = () => process.env.NODE_ENV === "production";
-const getBaseUrl = () => {
-  const isServer = typeof window !== "undefined";
-  const baseUrl = process.env.BASE_URL;
-  const port = process.env.PORT ?? 8099;
-  if (isServer) {
-    return "";
+const _Configuration = class _Configuration {
+  constructor() {
   }
-  if (baseUrl) {
-    if (baseUrl.startsWith("http")) {
-      return baseUrl;
-    } else {
-      return `https://${baseUrl}`;
+  static getInstance() {
+    if (!_Configuration.instance) {
+      _Configuration.instance = new _Configuration();
     }
+    return _Configuration.instance;
   }
-  return `http://localhost:${port}`;
+  static getFapshiBaseUrl() {
+    return process.env.FAPSHI_BASE_URL || "https://api.fapshi.com";
+  }
+  static getFapshiApiUser() {
+    return process.env.FAPSHI_API_USER || "";
+  }
+  static getFapshiApiKey() {
+    return process.env.FAPSHI_API_KEY || "";
+  }
+  static getAuthenticationSecret() {
+    return process.env.AUTHENTICATION_SECRET || "";
+  }
+  static getBaseUrl() {
+    return process.env.BASE_URL || "http://localhost:3000";
+  }
+  static isProduction() {
+    return process.env.NODE_ENV === "production";
+  }
+  static isDevelopment() {
+    return process.env.NODE_ENV === "development";
+  }
 };
-const getAuthenticationSecret = () => {
-  return process.env.SERVER_AUTHENTICATION_SECRET;
-};
-const Configuration = {
-  isDevelopment,
-  isProduction: isProduction$1,
-  getBaseUrl,
-  getAuthenticationSecret
-};
+__publicField(_Configuration, "instance");
+let Configuration = _Configuration;
 const importPostHogProvider = async () => {
   if (typeof window !== "undefined") {
     const value = (await import("posthog-js/react/dist/esm/index.js")).PostHogProvider;
@@ -1776,7 +1781,7 @@ const ImageSafe = ({
 const ImageOptimizedClient = {
   Img: ImageSafe
 };
-const { Title: Title$c } = Typography;
+const { Title: Title$e } = Typography;
 function CourseEditPage() {
   const { courseId } = useParams();
   const [form] = Form.useForm();
@@ -1942,7 +1947,7 @@ function CourseEditPage() {
     return /* @__PURE__ */ jsx(PageLayout, { children: /* @__PURE__ */ jsx("div", { className: "flex justify-center items-center h-full", children: /* @__PURE__ */ jsx(Spin, { size: "large" }) }) });
   }
   return /* @__PURE__ */ jsx(PageLayout, { children: /* @__PURE__ */ jsxs("div", { className: "max-w-4xl mx-auto p-6 md:p-4 sm:p-2", children: [
-    /* @__PURE__ */ jsx(Title$c, { level: 2, children: "Edit Course" }),
+    /* @__PURE__ */ jsx(Title$e, { level: 2, children: "Edit Course" }),
     /* @__PURE__ */ jsxs(
       Form,
       {
@@ -2043,7 +2048,7 @@ function CourseEditPage() {
       }
     ),
     /* @__PURE__ */ jsxs("div", { className: "mb-8", children: [
-      /* @__PURE__ */ jsx(Title$c, { level: 3, children: "Sections" }),
+      /* @__PURE__ */ jsx(Title$e, { level: 3, children: "Sections" }),
       /* @__PURE__ */ jsxs(
         Form,
         {
@@ -2082,7 +2087,7 @@ function CourseEditPage() {
         dataSource: course == null ? void 0 : course.sections,
         renderItem: (section) => /* @__PURE__ */ jsx(List.Item, { children: /* @__PURE__ */ jsxs("div", { className: "w-full", children: [
           /* @__PURE__ */ jsxs("div", { className: "flex flex-col sm:flex-row justify-between items-center mb-4", children: [
-            /* @__PURE__ */ jsx(Title$c, { level: 4, children: section.title }),
+            /* @__PURE__ */ jsx(Title$e, { level: 4, children: section.title }),
             /* @__PURE__ */ jsxs(Space, { gap: 2, children: [
               /* @__PURE__ */ jsx(
                 Button,
@@ -2251,27 +2256,270 @@ const route1 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProper
   __proto__: null,
   default: CourseEditPage
 }, Symbol.toStringTag, { value: "Module" }));
-const { Title: Title$b, Text: Text$9 } = Typography;
+const { Text: Text$b, Title: Title$d } = Typography;
+function CoursePaymentModal({
+  isOpen,
+  onClose,
+  courseId,
+  courseTitle,
+  amount,
+  onSuccess,
+  onError,
+  type = "COURSE_PURCHASE"
+}) {
+  const [form] = Form.useForm();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [transactionId, setTransactionId] = useState(null);
+  const [status, setStatus] = useState("form");
+  const [pollingCount, setPollingCount] = useState(0);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const { mutateAsync: initiatePayment } = Api.fapshi.initiatePayment.useMutation();
+  const { data: paymentStatus, refetch: checkPaymentStatus } = Api.fapshi.getPaymentStatus.useQuery(
+    { transId: transactionId || "" },
+    { enabled: !!transactionId }
+  );
+  useEffect(() => {
+    let pollInterval;
+    let timeoutId;
+    if (status === "pending" && transactionId) {
+      checkPaymentStatus();
+      pollInterval = setInterval(() => {
+        checkPaymentStatus();
+        setPollingCount((prev) => prev + 1);
+      }, 3e4);
+      timeoutId = setTimeout(() => {
+        if (status === "pending") {
+          clearInterval(pollInterval);
+          setStatus("timeout");
+        }
+      }, 30 * 60 * 1e3);
+    }
+    return () => {
+      if (pollInterval) clearInterval(pollInterval);
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [status, transactionId, checkPaymentStatus]);
+  useEffect(() => {
+    if (paymentStatus && typeof paymentStatus === "object" && "status" in paymentStatus) {
+      const fapshiStatus = paymentStatus;
+      if (fapshiStatus.status === "SUCCESSFUL") {
+        setStatus("success");
+        onSuccess();
+      } else if (fapshiStatus.status === "FAILED") {
+        setStatus("failed");
+        onError("Payment failed. Please try again.");
+      } else if (fapshiStatus.status === "PENDING" && status === "pending") ;
+    }
+  }, [paymentStatus, onSuccess, onError, status]);
+  const handleSubmit = async (values) => {
+    setIsSubmitting(true);
+    try {
+      const result = await initiatePayment({
+        amount: parseFloat(amount),
+        phone: values.phoneNumber,
+        message: `Payment for ${type === "SUBSCRIPTION" ? "Premium Subscription" : "Course"}: ${courseTitle}`,
+        type,
+        referenceId: courseId
+      });
+      setTransactionId(result.transactionId);
+      setStatus("pending");
+    } catch (error) {
+      onError(error.message || "Failed to process payment");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      const result = await checkPaymentStatus();
+      if (result && typeof result === "object" && "status" in result) {
+        const fapshiStatus = result;
+        if (fapshiStatus.status === "SUCCESSFUL") {
+          setStatus("success");
+          onSuccess();
+        } else if (fapshiStatus.status === "FAILED") {
+          setStatus("failed");
+          onError("Payment failed. Please try again.");
+        } else {
+          setStatus("pending");
+        }
+      }
+    } catch (error) {
+      setStatus("failed");
+      onError("Error checking payment status");
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+  const renderContent = () => {
+    switch (status) {
+      case "form":
+        return /* @__PURE__ */ jsx(Form, { form, onFinish: handleSubmit, layout: "vertical", children: /* @__PURE__ */ jsx(
+          Form.Item,
+          {
+            name: "phoneNumber",
+            label: "Phone Number",
+            rules: [
+              { required: true, message: "Please enter phone number" },
+              {
+                pattern: /^(237|\+237)?[6-9][0-9]{8}$/,
+                message: "Please enter a valid Cameroon phone number"
+              }
+            ],
+            children: /* @__PURE__ */ jsx(Input, { addonBefore: "+237" })
+          }
+        ) });
+      case "pending":
+        return /* @__PURE__ */ jsxs(Space, { direction: "vertical", align: "center", style: { width: "100%" }, children: [
+          /* @__PURE__ */ jsx(Spin, { size: "large" }),
+          /* @__PURE__ */ jsx(Title$d, { level: 4, children: "Waiting for Payment Confirmation" }),
+          /* @__PURE__ */ jsx(Text$b, { type: "secondary", children: "Please check your phone and confirm the payment request" }),
+          /* @__PURE__ */ jsxs(Space, { direction: "vertical", style: { width: "100%", marginTop: 24 }, children: [
+            /* @__PURE__ */ jsx(
+              Alert,
+              {
+                message: "Payment Details",
+                description: /* @__PURE__ */ jsxs(Space, { direction: "vertical", children: [
+                  /* @__PURE__ */ jsxs(Text$b, { children: [
+                    type === "SUBSCRIPTION" ? "Subscription" : "Course",
+                    ": ",
+                    courseTitle
+                  ] }),
+                  /* @__PURE__ */ jsxs(Text$b, { children: [
+                    "Amount: ",
+                    amount,
+                    " XAF"
+                  ] }),
+                  /* @__PURE__ */ jsxs(Text$b, { children: [
+                    "Phone: ",
+                    form.getFieldValue("phoneNumber")
+                  ] }),
+                  /* @__PURE__ */ jsxs(Text$b, { children: [
+                    "Transaction ID: ",
+                    transactionId
+                  ] })
+                ] }),
+                type: "info",
+                showIcon: true
+              }
+            ),
+            /* @__PURE__ */ jsxs("div", { style: { textAlign: "center", marginTop: 16 }, children: [
+              /* @__PURE__ */ jsx(Spin, { size: "small" }),
+              /* @__PURE__ */ jsx(Text$b, { type: "secondary", style: { marginLeft: 8 }, children: "Checking payment status..." })
+            ] })
+          ] })
+        ] });
+      case "timeout":
+        return /* @__PURE__ */ jsxs(Space, { direction: "vertical", align: "center", style: { width: "100%" }, children: [
+          /* @__PURE__ */ jsx(
+            Alert,
+            {
+              message: "Payment Status Unclear",
+              description: "We couldn't confirm your payment status. Would you like to check again?",
+              type: "warning",
+              showIcon: true
+            }
+          ),
+          /* @__PURE__ */ jsx(
+            Button,
+            {
+              type: "primary",
+              onClick: handleRefresh,
+              loading: isRefreshing,
+              style: { marginTop: 16 },
+              children: "Check Status Again"
+            }
+          )
+        ] });
+      case "failed":
+        return /* @__PURE__ */ jsxs(Space, { direction: "vertical", align: "center", style: { width: "100%" }, children: [
+          /* @__PURE__ */ jsx(
+            Alert,
+            {
+              message: "Payment Failed",
+              description: "Your payment could not be processed. Please try again.",
+              type: "error",
+              showIcon: true
+            }
+          ),
+          /* @__PURE__ */ jsx(Button, { type: "primary", danger: true, onClick: onClose, style: { marginTop: 16 }, children: "Close" })
+        ] });
+      default:
+        return null;
+    }
+  };
+  return /* @__PURE__ */ jsx(
+    Modal,
+    {
+      open: isOpen,
+      onCancel: onClose,
+      footer: status === "form" ? [
+        /* @__PURE__ */ jsx(Button, { onClick: onClose, children: "Cancel" }, "cancel"),
+        /* @__PURE__ */ jsx(
+          Button,
+          {
+            type: "primary",
+            onClick: () => form.submit(),
+            loading: isSubmitting,
+            children: "Pay Now"
+          },
+          "submit"
+        )
+      ] : null,
+      width: 500,
+      title: type === "SUBSCRIPTION" ? "Premium Subscription Payment" : "Course Payment",
+      children: renderContent()
+    }
+  );
+}
+const { Title: Title$c, Text: Text$a } = Typography;
 function CoursePreviewPage() {
   var _a2;
   const navigate = useNavigate();
-  const { isLoggedIn } = useUserContext();
+  const { isLoggedIn, user } = useUserContext();
   const { courseId } = useParams();
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const { data: course, isLoading } = Api.course.findUnique.useQuery({
     where: { id: courseId },
     include: { sections: { include: { videos: true } } }
   });
+  const { mutateAsync: createEnrollment } = Api.userCourse.create.useMutation();
   const handleGetNow = async (course2) => {
     if (!isLoggedIn) {
       message.warning("Please login to join courses");
       navigate("/login");
       return;
     }
-    if (!course2.paymentLink) {
-      message.warning("Payment link not available");
+    if (!course2.price) {
+      message.warning("Course price not available");
       return;
     }
-    window.location.href = course2.paymentLink;
+    setIsPaymentModalOpen(true);
+  };
+  const handlePaymentSuccess = async () => {
+    try {
+      await createEnrollment({
+        data: {
+          courseId: course.id,
+          userId: user.id
+        }
+      });
+      message.success("Successfully enrolled in course");
+      navigate(`/courses/${course.id}`);
+    } catch (error) {
+      if (error.code === "CONFLICT") {
+        message.error("You are already enrolled in this course");
+      } else {
+        message.error("Failed to enroll in course");
+      }
+    }
+  };
+  const handlePaymentError = (error) => {
+    message.error(error);
+  };
+  const handleUpgrade = () => {
+    navigate("/upgrade");
   };
   if (isLoading) {
     return /* @__PURE__ */ jsx(PageLayout, { layout: "full-width", children: /* @__PURE__ */ jsx("div", { style: { textAlign: "center", padding: "50px" }, children: /* @__PURE__ */ jsx(Spin, { size: "large" }) }) });
@@ -2298,10 +2546,10 @@ function CoursePreviewPage() {
       }
     ) }),
     /* @__PURE__ */ jsxs("div", { style: { maxWidth: "1200px", margin: "0 auto", padding: "20px" }, children: [
-      /* @__PURE__ */ jsx(Title$b, { level: 2, children: course == null ? void 0 : course.title }),
-      /* @__PURE__ */ jsx(Text$9, { children: course == null ? void 0 : course.description }),
+      /* @__PURE__ */ jsx(Title$c, { level: 2, children: course == null ? void 0 : course.title }),
+      /* @__PURE__ */ jsx(Text$a, { children: course == null ? void 0 : course.description }),
       /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-4 mt-4", children: [
-        /* @__PURE__ */ jsxs(Text$9, { strong: true, children: [
+        /* @__PURE__ */ jsxs(Text$a, { strong: true, children: [
           "XAF ",
           course == null ? void 0 : course.price
         ] }),
@@ -2318,7 +2566,7 @@ function CoursePreviewPage() {
               List,
               {
                 dataSource: (_a3 = section.videos) == null ? void 0 : _a3.sort((a, b) => a.order - b.order),
-                renderItem: (video) => /* @__PURE__ */ jsx(List.Item, { children: /* @__PURE__ */ jsx(Text$9, { children: video.title }) })
+                renderItem: (video) => /* @__PURE__ */ jsx(List.Item, { children: /* @__PURE__ */ jsx(Text$a, { children: video.title }) })
               }
             ) }) });
           }
@@ -2333,21 +2581,33 @@ function CoursePreviewPage() {
             background: "#f0f7ff"
           },
           children: [
-            /* @__PURE__ */ jsxs(Title$b, { level: 4, children: [
+            /* @__PURE__ */ jsxs(Title$c, { level: 4, children: [
               /* @__PURE__ */ jsx("i", { className: "las la-crown" }),
               " Unlock All Premium Content"
             ] }),
-            /* @__PURE__ */ jsx(Text$9, { children: "Get unlimited access to all our premium courses and exclusive content." }),
+            /* @__PURE__ */ jsx(Text$a, { children: "Get unlimited access to all our premium courses and exclusive content." }),
             /* @__PURE__ */ jsx("div", { style: { marginTop: "16px" }, children: /* @__PURE__ */ jsx(
               Button,
               {
                 type: "primary",
                 size: "large",
-                onClick: () => navigate("/upgrade"),
+                onClick: handleUpgrade,
                 children: "Upgrade Now"
               }
             ) })
           ]
+        }
+      ),
+      /* @__PURE__ */ jsx(
+        CoursePaymentModal,
+        {
+          isOpen: isPaymentModalOpen,
+          onClose: () => setIsPaymentModalOpen(false),
+          courseId: course == null ? void 0 : course.id,
+          courseTitle: course == null ? void 0 : course.title,
+          amount: course == null ? void 0 : course.price,
+          onSuccess: handlePaymentSuccess,
+          onError: handlePaymentError
         }
       )
     ] })
@@ -2357,7 +2617,7 @@ const route2 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProper
   __proto__: null,
   default: CoursePreviewPage
 }, Symbol.toStringTag, { value: "Module" }));
-const { Text: Text$8 } = Typography;
+const { Text: Text$9 } = Typography;
 function ResetPasswordTokenPage() {
   const router = useNavigate();
   const { token } = useParams();
@@ -2459,17 +2719,17 @@ function ResetPasswordTokenPage() {
               ghost: true,
               style: { border: "none" },
               onClick: () => router("/login"),
-              children: /* @__PURE__ */ jsx(Flex, { gap: "small", justify: "center", children: /* @__PURE__ */ jsx(Text$8, { children: "Sign in" }) })
+              children: /* @__PURE__ */ jsx(Flex, { gap: "small", justify: "center", children: /* @__PURE__ */ jsx(Text$9, { children: "Sign in" }) })
             }
           ),
-          /* @__PURE__ */ jsx(Text$8, { type: "secondary", children: "or" }),
+          /* @__PURE__ */ jsx(Text$9, { type: "secondary", children: "or" }),
           /* @__PURE__ */ jsx(
             Button,
             {
               ghost: true,
               style: { border: "none" },
               onClick: () => router("/register"),
-              children: /* @__PURE__ */ jsx(Flex, { gap: "small", justify: "center", children: /* @__PURE__ */ jsx(Text$8, { children: "Sign up" }) })
+              children: /* @__PURE__ */ jsx(Flex, { gap: "small", justify: "center", children: /* @__PURE__ */ jsx(Text$9, { children: "Sign up" }) })
             }
           )
         ] })
@@ -2481,7 +2741,7 @@ const route3 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProper
   __proto__: null,
   default: ResetPasswordTokenPage
 }, Symbol.toStringTag, { value: "Module" }));
-const { Title: Title$a } = Typography;
+const { Title: Title$b } = Typography;
 function CoursesTab() {
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState(null);
@@ -2586,7 +2846,7 @@ function CoursesTab() {
   ];
   return /* @__PURE__ */ jsxs("div", { className: "p-4", children: [
     /* @__PURE__ */ jsxs("div", { className: "flex justify-between items-center mb-4", children: [
-      /* @__PURE__ */ jsx(Title$a, { level: 3, children: "Courses Management" }),
+      /* @__PURE__ */ jsx(Title$b, { level: 3, children: "Courses Management" }),
       /* @__PURE__ */ jsx(Button, { type: "primary", icon: /* @__PURE__ */ jsx(PlusOutlined, {}), onClick: handleCreate, children: "Add Course" })
     ] }),
     /* @__PURE__ */ jsxs("div", { className: "flex gap-4 mb-4", children: [
@@ -2667,7 +2927,7 @@ function CoursesTab() {
     )
   ] });
 }
-const { Text: Text$7 } = Typography;
+const { Text: Text$8 } = Typography;
 function PremiumUpgradeTab() {
   const [form] = Form.useForm();
   const {
@@ -2763,9 +3023,9 @@ function PremiumUpgradeTab() {
     }
   };
   return /* @__PURE__ */ jsxs("div", { className: "p-4", children: [
-    /* @__PURE__ */ jsx("div", { className: "mb-4", children: isLoadingPremium ? /* @__PURE__ */ jsx(Text$7, { children: "Loading premium link data..." }) : premiumError ? /* @__PURE__ */ jsx(Text$7, { type: "danger", children: "Error loading premium link data. Please try again." }) : (premiumLink == null ? void 0 : premiumLink.url) && /* @__PURE__ */ jsxs(Text$7, { children: [
+    /* @__PURE__ */ jsx("div", { className: "mb-4", children: isLoadingPremium ? /* @__PURE__ */ jsx(Text$8, { children: "Loading premium link data..." }) : premiumError ? /* @__PURE__ */ jsx(Text$8, { type: "danger", children: "Error loading premium link data. Please try again." }) : (premiumLink == null ? void 0 : premiumLink.url) && /* @__PURE__ */ jsxs(Text$8, { children: [
       "Current Premium Link: ",
-      /* @__PURE__ */ jsx(Text$7, { strong: true, children: premiumLink.url })
+      /* @__PURE__ */ jsx(Text$8, { strong: true, children: premiumLink.url })
     ] }) }),
     /* @__PURE__ */ jsxs(
       Form,
@@ -2806,9 +3066,9 @@ function PremiumUpgradeTab() {
             }
           ),
           /* @__PURE__ */ jsx(Divider, {}),
-          /* @__PURE__ */ jsx("div", { className: "mb-4", children: isLoadingAffiliate ? /* @__PURE__ */ jsx(Text$7, { children: "Loading affiliate link data..." }) : affiliateError ? /* @__PURE__ */ jsx(Text$7, { type: "danger", children: "Error loading affiliate link data. Please try again." }) : (affiliateLink == null ? void 0 : affiliateLink.url) && /* @__PURE__ */ jsxs(Text$7, { children: [
+          /* @__PURE__ */ jsx("div", { className: "mb-4", children: isLoadingAffiliate ? /* @__PURE__ */ jsx(Text$8, { children: "Loading affiliate link data..." }) : affiliateError ? /* @__PURE__ */ jsx(Text$8, { type: "danger", children: "Error loading affiliate link data. Please try again." }) : (affiliateLink == null ? void 0 : affiliateLink.url) && /* @__PURE__ */ jsxs(Text$8, { children: [
             "Current Affiliate Link: ",
-            /* @__PURE__ */ jsx(Text$7, { strong: true, children: affiliateLink.url })
+            /* @__PURE__ */ jsx(Text$8, { strong: true, children: affiliateLink.url })
           ] }) }),
           /* @__PURE__ */ jsx(
             Form.Item,
@@ -2851,7 +3111,7 @@ function PremiumUpgradeTab() {
     )
   ] });
 }
-const { Title: Title$9 } = Typography;
+const { Title: Title$a } = Typography;
 function SkillFeedTab() {
   const [form] = Form.useForm();
   const [editingVideo, setEditingVideo] = useState(null);
@@ -2937,7 +3197,7 @@ function SkillFeedTab() {
     }
   ];
   return /* @__PURE__ */ jsxs("div", { className: "p-4", children: [
-    /* @__PURE__ */ jsx("div", { className: "flex justify-between items-center mb-4", children: /* @__PURE__ */ jsx(Title$9, { level: 3, children: "SkillFeed Videos" }) }),
+    /* @__PURE__ */ jsx("div", { className: "flex justify-between items-center mb-4", children: /* @__PURE__ */ jsx(Title$a, { level: 3, children: "SkillFeed Videos" }) }),
     /* @__PURE__ */ jsx(
       Button,
       {
@@ -3050,7 +3310,7 @@ function SkillFeedTab() {
     )
   ] });
 }
-const { Title: Title$8 } = Typography;
+const { Title: Title$9 } = Typography;
 function UsersTab() {
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState(null);
@@ -3200,7 +3460,7 @@ function UsersTab() {
     }
   ];
   return /* @__PURE__ */ jsxs("div", { className: "p-4", children: [
-    /* @__PURE__ */ jsx(Title$8, { level: 3, children: "Users Management" }),
+    /* @__PURE__ */ jsx(Title$9, { level: 3, children: "Users Management" }),
     /* @__PURE__ */ jsxs("div", { className: "flex gap-4 mb-4", children: [
       /* @__PURE__ */ jsx(
         Select,
@@ -3293,7 +3553,7 @@ function UsersTab() {
     )
   ] });
 }
-const { Title: Title$7 } = Typography;
+const { Title: Title$8 } = Typography;
 function AdminControlPanel() {
   const { checkRole } = useUserContext();
   const navigate = useNavigate();
@@ -3322,13 +3582,13 @@ function AdminControlPanel() {
       key: "skillfeed",
       label: "Skillfeed",
       children: /* @__PURE__ */ jsxs("div", { children: [
-        /* @__PURE__ */ jsx(Title$7, { level: 3, children: "Skillfeed Management" }),
+        /* @__PURE__ */ jsx(Title$8, { level: 3, children: "Skillfeed Management" }),
         /* @__PURE__ */ jsx(SkillFeedTab, {})
       ] })
     }
   ];
   return /* @__PURE__ */ jsx(PageLayout, { layout: "full-width", children: /* @__PURE__ */ jsxs("div", { className: "p-4", children: [
-    /* @__PURE__ */ jsx(Title$7, { level: 2, children: "Admin Control Panel" }),
+    /* @__PURE__ */ jsx(Title$8, { level: 2, children: "Admin Control Panel" }),
     /* @__PURE__ */ jsx(Tabs, { items })
   ] }) });
 }
@@ -3336,7 +3596,7 @@ const route4 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProper
   __proto__: null,
   default: AdminControlPanel
 }, Symbol.toStringTag, { value: "Module" }));
-const { Title: Title$6, Text: Text$6 } = Typography;
+const { Title: Title$7, Text: Text$7 } = Typography;
 function CourseDetailsPage() {
   var _a2;
   const { courseId } = useParams();
@@ -3382,8 +3642,8 @@ function CourseDetailsPage() {
         }
       ) }),
       /* @__PURE__ */ jsxs("div", { className: "px-5", children: [
-        /* @__PURE__ */ jsx(Title$6, { level: 2, children: course == null ? void 0 : course.title }),
-        /* @__PURE__ */ jsx(Text$6, { children: course == null ? void 0 : course.description })
+        /* @__PURE__ */ jsx(Title$7, { level: 2, children: course == null ? void 0 : course.title }),
+        /* @__PURE__ */ jsx(Text$7, { children: course == null ? void 0 : course.description })
       ] }),
       /* @__PURE__ */ jsx(
         List,
@@ -3397,7 +3657,7 @@ function CourseDetailsPage() {
               {
                 dataSource: (_a3 = section.videos) == null ? void 0 : _a3.sort((a, b) => a.order - b.order),
                 renderItem: (video) => /* @__PURE__ */ jsx(List.Item, { children: /* @__PURE__ */ jsxs("div", { children: [
-                  /* @__PURE__ */ jsx(Title$6, { level: 5, children: video.title }),
+                  /* @__PURE__ */ jsx(Title$7, { level: 5, children: video.title }),
                   /* @__PURE__ */ jsx("div", { className: "mt-4", children: /* @__PURE__ */ jsx(
                     "iframe",
                     {
@@ -3418,7 +3678,7 @@ function CourseDetailsPage() {
                       allowFullScreen: true
                     }
                   ) }),
-                  /* @__PURE__ */ jsx(Text$6, { className: "mt-4", children: video.description })
+                  /* @__PURE__ */ jsx(Text$7, { className: "mt-4", children: video.description })
                 ] }) })
               }
             ) }) });
@@ -3471,7 +3731,7 @@ const route5 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProper
   __proto__: null,
   default: CourseDetailsPage
 }, Symbol.toStringTag, { value: "Module" }));
-const { Text: Text$5 } = Typography;
+const { Text: Text$6 } = Typography;
 function ResetPasswordPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState();
@@ -3553,17 +3813,17 @@ function ResetPasswordPage() {
               ghost: true,
               style: { border: "none" },
               onClick: () => navigate("/login"),
-              children: /* @__PURE__ */ jsx(Flex, { gap: "small", justify: "center", children: /* @__PURE__ */ jsx(Text$5, { children: "Sign in" }) })
+              children: /* @__PURE__ */ jsx(Flex, { gap: "small", justify: "center", children: /* @__PURE__ */ jsx(Text$6, { children: "Sign in" }) })
             }
           ),
-          /* @__PURE__ */ jsx(Text$5, { type: "secondary", children: "or" }),
+          /* @__PURE__ */ jsx(Text$6, { type: "secondary", children: "or" }),
           /* @__PURE__ */ jsx(
             Button,
             {
               ghost: true,
               style: { border: "none" },
               onClick: () => navigate("/register"),
-              children: /* @__PURE__ */ jsx(Flex, { gap: "small", justify: "center", children: /* @__PURE__ */ jsx(Text$5, { children: "Sign up" }) })
+              children: /* @__PURE__ */ jsx(Flex, { gap: "small", justify: "center", children: /* @__PURE__ */ jsx(Text$6, { children: "Sign up" }) })
             }
           )
         ] })
@@ -3575,7 +3835,7 @@ const route6 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProper
   __proto__: null,
   default: ResetPasswordPage
 }, Symbol.toStringTag, { value: "Module" }));
-const { Title: Title$5, Text: Text$4 } = Typography;
+const { Title: Title$6, Text: Text$5 } = Typography;
 function MyCoursesPage() {
   const navigate = useNavigate();
   const { user } = useUserContext();
@@ -3599,18 +3859,18 @@ function MyCoursesPage() {
     navigate(`/courses/${courseId}`);
   };
   if (error) {
-    return /* @__PURE__ */ jsx(PageLayout, { layout: "full-width", children: /* @__PURE__ */ jsx("div", { style: { textAlign: "center", padding: "50px" }, children: /* @__PURE__ */ jsx(Text$4, { type: "danger", children: "Failed to load courses. Please try again later." }) }) });
+    return /* @__PURE__ */ jsx(PageLayout, { layout: "full-width", children: /* @__PURE__ */ jsx("div", { style: { textAlign: "center", padding: "50px" }, children: /* @__PURE__ */ jsx(Text$5, { type: "danger", children: "Failed to load courses. Please try again later." }) }) });
   }
   if (isLoading) {
     return /* @__PURE__ */ jsx(PageLayout, { layout: "full-width", children: /* @__PURE__ */ jsx("div", { style: { textAlign: "center", padding: "50px" }, children: /* @__PURE__ */ jsx(Spin, { size: "large" }) }) });
   }
   return /* @__PURE__ */ jsx(PageLayout, { layout: "full-width", children: /* @__PURE__ */ jsxs("div", { style: { maxWidth: "1200px", margin: "0 auto", padding: "20px" }, children: [
     /* @__PURE__ */ jsxs("div", { style: { textAlign: "center", marginBottom: "40px" }, children: [
-      /* @__PURE__ */ jsxs(Title$5, { level: 2, children: [
+      /* @__PURE__ */ jsxs(Title$6, { level: 2, children: [
         /* @__PURE__ */ jsx("i", { className: "las la-graduation-cap" }),
         " My Courses"
       ] }),
-      /* @__PURE__ */ jsx(Text$4, { children: "Continue learning from where you left off" })
+      /* @__PURE__ */ jsx(Text$5, { children: "Continue learning from where you left off" })
     ] }),
     /* @__PURE__ */ jsxs(Row, { gutter: [24, 24], children: [
       enrolledCourses == null ? void 0 : enrolledCourses.map((enrollment) => /* @__PURE__ */ jsx(Col, { xs: 24, sm: 12, md: 8, lg: 8, children: /* @__PURE__ */ jsxs(
@@ -3649,7 +3909,7 @@ function MyCoursesPage() {
           ]
         }
       ) }, enrollment.id)),
-      (enrolledCourses == null ? void 0 : enrolledCourses.length) === 0 && /* @__PURE__ */ jsx(Col, { span: 24, style: { textAlign: "center" }, children: /* @__PURE__ */ jsx(Text$4, { children: "You haven't enrolled in any courses yet." }) })
+      (enrolledCourses == null ? void 0 : enrolledCourses.length) === 0 && /* @__PURE__ */ jsx(Col, { span: 24, style: { textAlign: "center" }, children: /* @__PURE__ */ jsx(Text$5, { children: "You haven't enrolled in any courses yet." }) })
     ] })
   ] }) });
 }
@@ -3657,7 +3917,7 @@ const route7 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProper
   __proto__: null,
   default: MyCoursesPage
 }, Symbol.toStringTag, { value: "Module" }));
-const { Paragraph: Paragraph$1, Title: Title$4, Link } = Typography;
+const { Paragraph: Paragraph$1, Title: Title$5, Link } = Typography;
 const detectUrls = (text) => {
   const urlRegex = /(https?:\/\/[^\s]+)/g;
   return text.split(urlRegex).map((part, i) => {
@@ -3737,7 +3997,7 @@ function HomePage() {
           }
         ) : /* @__PURE__ */ jsx("div", { className: "text-center text-red-500", children: "Unsupported video format" }),
         /* @__PURE__ */ jsxs("div", { className: "mt-2 mb-4 bg-gray-200 p-4 rounded-lg", children: [
-          /* @__PURE__ */ jsx(Title$4, { level: 4, children: video.title }),
+          /* @__PURE__ */ jsx(Title$5, { level: 4, children: video.title }),
           /* @__PURE__ */ jsx(
             Paragraph$1,
             {
@@ -5442,7 +5702,7 @@ const route9 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProper
   __proto__: null,
   action: action$2
 }, Symbol.toStringTag, { value: "Module" }));
-const { Title: Title$3, Text: Text$3 } = Typography;
+const { Title: Title$4, Text: Text$4 } = Typography;
 function SettingsPage() {
   const { user } = useUserContext();
   const [profileForm] = Form.useForm();
@@ -5569,11 +5829,11 @@ function SettingsPage() {
     }
   };
   return /* @__PURE__ */ jsx(PageLayout, { layout: "full-width", children: /* @__PURE__ */ jsxs("div", { style: { maxWidth: 1200, margin: "0 auto", padding: "24px" }, children: [
-    /* @__PURE__ */ jsxs(Title$3, { level: 2, children: [
+    /* @__PURE__ */ jsxs(Title$4, { level: 2, children: [
       /* @__PURE__ */ jsx("i", { className: "las la-cog" }),
       " Settings"
     ] }),
-    /* @__PURE__ */ jsx(Text$3, { children: "Manage your account settings and preferences" }),
+    /* @__PURE__ */ jsx(Text$4, { children: "Manage your account settings and preferences" }),
     /* @__PURE__ */ jsxs(Row, { gutter: [24, 24], style: { marginTop: 24 }, children: [
       /* @__PURE__ */ jsx(Col, { xs: 24, children: /* @__PURE__ */ jsxs(
         Card,
@@ -5653,7 +5913,7 @@ function SettingsPage() {
                       alignItems: "center"
                     },
                     children: [
-                      /* @__PURE__ */ jsxs(Text$3, { style: { display: "flex", alignItems: "center" }, children: [
+                      /* @__PURE__ */ jsxs(Text$4, { style: { display: "flex", alignItems: "center" }, children: [
                         platform === "YouTube" ? /* @__PURE__ */ jsx(
                           YoutubeFilled,
                           {
@@ -5717,7 +5977,7 @@ function SettingsPage() {
           ] }),
           style: { marginTop: 24 },
           children: [
-            /* @__PURE__ */ jsx(Text$3, { children: "Earn 50% commission on every referral!" }),
+            /* @__PURE__ */ jsx(Text$4, { children: "Earn 50% commission on every referral!" }),
             /* @__PURE__ */ jsx("div", { style: { marginTop: 16 }, children: (affiliateLink == null ? void 0 : affiliateLink.url) ? /* @__PURE__ */ jsxs(Space, { children: [
               /* @__PURE__ */ jsx(
                 Input,
@@ -5849,7 +6109,7 @@ const route11 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePrope
   __proto__: null,
   action: action$1
 }, Symbol.toStringTag, { value: "Module" }));
-const { Title: Title$2, Text: Text$2 } = Typography;
+const { Title: Title$3, Text: Text$3 } = Typography;
 function CoursesPage() {
   const navigate = useNavigate();
   const { user, isLoggedIn, checkRole } = useUserContext();
@@ -5863,11 +6123,7 @@ function CoursesPage() {
   const isPremiumUser = checkRole(["ADMIN", "PREMIUM"]);
   const handleUpgrade = async () => {
     try {
-      if (premiumLink == null ? void 0 : premiumLink.url) {
-        window.location.href = premiumLink.url;
-      } else {
-        navigate("/upgrade");
-      }
+      navigate("/upgrade");
     } catch (error) {
       console.error("Error handling upgrade:", error);
       message.error("Failed to process upgrade request. Please try again.");
@@ -5920,11 +6176,11 @@ function CoursesPage() {
   }
   return /* @__PURE__ */ jsx(PageLayout, { layout: "full-width", children: /* @__PURE__ */ jsxs("div", { style: { maxWidth: "1200px", margin: "0 auto", padding: "20px" }, children: [
     /* @__PURE__ */ jsxs("div", { style: { textAlign: "center", marginBottom: "40px" }, children: [
-      /* @__PURE__ */ jsxs(Title$2, { level: 2, children: [
+      /* @__PURE__ */ jsxs(Title$3, { level: 2, children: [
         /* @__PURE__ */ jsx("i", { className: "las la-play-circle" }),
         " Course Library"
       ] }),
-      /* @__PURE__ */ jsx(Text$2, { children: "Explore our collection of premium courses. Upgrade your account to access all content." })
+      /* @__PURE__ */ jsx(Text$3, { children: "Explore our collection of premium courses. Upgrade your account to access all content." })
     ] }),
     !isPremiumUser && !checkRole("ADMIN") && /* @__PURE__ */ jsxs(
       Card,
@@ -5935,11 +6191,11 @@ function CoursesPage() {
           background: "#f0f7ff"
         },
         children: [
-          /* @__PURE__ */ jsxs(Title$2, { level: 4, children: [
+          /* @__PURE__ */ jsxs(Title$3, { level: 4, children: [
             /* @__PURE__ */ jsx("i", { className: "las la-crown" }),
             " Unlock All Premium Content"
           ] }),
-          /* @__PURE__ */ jsx(Text$2, { children: "Get unlimited access to all our premium courses and exclusive content." }),
+          /* @__PURE__ */ jsx(Text$3, { children: "Get unlimited access to all our premium courses and exclusive content." }),
           /* @__PURE__ */ jsx("div", { style: { marginTop: "16px" }, children: /* @__PURE__ */ jsx(
             Button,
             {
@@ -6039,8 +6295,8 @@ function CoursesPage() {
               }
             ),
             description: /* @__PURE__ */ jsxs(Fragment, { children: [
-              /* @__PURE__ */ jsx(Text$2, { children: course.description }),
-              course.isPremium && !isPremiumUser && /* @__PURE__ */ jsx("div", { style: { marginTop: "8px" }, children: /* @__PURE__ */ jsxs(Text$2, { type: "secondary", children: [
+              /* @__PURE__ */ jsx(Text$3, { children: course.description }),
+              course.isPremium && !isPremiumUser && /* @__PURE__ */ jsx("div", { style: { marginTop: "8px" }, children: /* @__PURE__ */ jsxs(Text$3, { type: "secondary", children: [
                 /* @__PURE__ */ jsx("i", { className: "las la-lock" }),
                 " Premium content"
               ] }) })
@@ -6251,29 +6507,20 @@ const route14 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePrope
   __proto__: null,
   default: ProfilePage
 }, Symbol.toStringTag, { value: "Module" }));
-const { Title: Title$1, Text: Text$1, Paragraph } = Typography;
+const { Title: Title$2, Text: Text$2, Paragraph } = Typography;
 function UpgradePage() {
-  useNavigate();
+  const navigate = useNavigate();
   const { user } = useUserContext();
-  const { data: products, isLoading } = Api.billing.findManyProducts.useQuery({});
-  const { data: premiumLink, isLoading: isPremiumLoading, error: premiumError, refetch } = Api.premiumLink.findFirst.useQuery(void 0, {
-    onError: () => {
-      message.error("Failed to load premium payment link");
-    }
-  });
-  const { mutateAsync: createPaymentLink } = Api.billing.createPaymentLink.useMutation();
-  const handleUpgrade = async (productId) => {
-    try {
-      const { url } = await createPaymentLink({
-        productId
-      });
-      if (url) {
-        window.location.href = url;
-      }
-    } catch (error) {
-      message.error("Fapshi payment processing failed. Please try again.");
-      console.error("Payment error:", error);
-    }
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const handleUpgrade = () => {
+    setIsPaymentModalOpen(true);
+  };
+  const handlePaymentSuccess = () => {
+    message.success("Successfully upgraded to premium");
+    navigate("/courses");
+  };
+  const handlePaymentError = (error) => {
+    message.error(error);
   };
   const premiumFeatures = [
     {
@@ -6292,124 +6539,63 @@ function UpgradePage() {
       description: "Earn certificates upon course completion"
     }
   ];
-  return /* @__PURE__ */ jsx(PageLayout, { layout: "full-width", children: /* @__PURE__ */ jsxs("div", { style: { maxWidth: 1200, margin: "0 auto", padding: "24px" }, children: [
-    /* @__PURE__ */ jsxs(Title$1, { level: 2, style: { textAlign: "center" }, children: [
-      /* @__PURE__ */ jsx("i", { className: "las la-gem", style: { marginRight: 8 } }),
-      "Upgrade to Premium"
-    ] }),
-    /* @__PURE__ */ jsx(Paragraph, { style: { textAlign: "center", marginBottom: 40 }, children: "Unlock all premium features and take your learning experience to the next level" }),
-    /* @__PURE__ */ jsx(Row, { gutter: [24, 24], style: { marginBottom: 48 }, children: premiumFeatures.map((feature, index) => /* @__PURE__ */ jsx(Col, { xs: 24, sm: 12, md: 6, children: /* @__PURE__ */ jsxs(Card, { style: { height: "100%", textAlign: "center" }, children: [
-      /* @__PURE__ */ jsx(
-        "i",
-        {
-          className: `las la-${feature.icon}`,
-          style: { fontSize: 32, color: "#1890ff", marginBottom: 16 }
-        }
-      ),
-      /* @__PURE__ */ jsx(Title$1, { level: 4, children: feature.title }),
-      /* @__PURE__ */ jsx(Text$1, { type: "secondary", children: feature.description })
-    ] }) }, index)) }),
-    /* @__PURE__ */ jsx("div", { style: { textAlign: "center", marginBottom: 48 }, children: /* @__PURE__ */ jsx(
-      Button,
+  return /* @__PURE__ */ jsx(PageLayout, { layout: "full-width", children: /* @__PURE__ */ jsxs("div", { style: { maxWidth: "1200px", margin: "0 auto", padding: "20px" }, children: [
+    /* @__PURE__ */ jsx(Title$2, { level: 2, children: "Upgrade to Premium" }),
+    /* @__PURE__ */ jsx(Paragraph, { children: "Get access to all premium features and content with our subscription plan." }),
+    /* @__PURE__ */ jsx(
+      Row,
       {
-        type: "primary",
-        size: "large",
-        onClick: () => {
-          if (isPremiumLoading) return;
-          if (premiumLink == null ? void 0 : premiumLink.url) {
-            window.location.href = premiumLink.url;
-          } else {
-            message.warning("Payment link not available. Please try again later.");
-            refetch();
-          }
-        },
-        loading: isPremiumLoading,
-        icon: /* @__PURE__ */ jsx("i", { className: "las la-gem" }),
-        style: {
-          background: "#1890ff",
-          borderColor: "#1890ff",
-          padding: "0 40px"
-        },
-        children: isPremiumLoading ? "Loading..." : "PAY NOW"
-      }
-    ) }),
-    /* @__PURE__ */ jsx(Row, { gutter: [24, 24], justify: "center", children: isLoading ? /* @__PURE__ */ jsx(Col, { span: 24, style: { textAlign: "center" }, children: /* @__PURE__ */ jsx(Text$1, { children: "Loading available plans..." }) }) : products == null ? void 0 : products.filter((product) => product.name !== "Enterprise").map((product, index) => /* @__PURE__ */ jsx(Col, { xs: 24, sm: 12, children: /* @__PURE__ */ jsxs(
-      Card,
-      {
-        title: /* @__PURE__ */ jsx(Title$1, { level: 3, style: { textAlign: "center", margin: 0 }, children: product.name }),
-        style: { height: "100%" },
-        children: [
-          /* @__PURE__ */ jsx("div", { style: { textAlign: "center", marginBottom: 24 }, children: /* @__PURE__ */ jsx(Title$1, { level: 2, style: { margin: 0 }, children: product.name === "Basic" ? "Free" : "XAF 3000/month" }) }),
-          /* @__PURE__ */ jsx(Paragraph, { style: { minHeight: 80 }, children: product.description }),
-          /* @__PURE__ */ jsxs(Flex, { vertical: true, gap: 8, children: [
-            /* @__PURE__ */ jsx(
-              Button,
+        gutter: [24, 24],
+        style: { marginTop: "32px", marginBottom: "32px" },
+        children: /* @__PURE__ */ jsx(
+          Col,
+          {
+            xs: 24,
+            md: 12,
+            lg: 8,
+            style: { margin: "0 auto", float: "none" },
+            children: /* @__PURE__ */ jsxs(
+              Card,
               {
-                type: "primary",
-                size: "large",
-                block: true,
-                onClick: () => handleUpgrade(product.id),
-                icon: /* @__PURE__ */ jsx(
-                  "img",
-                  {
-                    src: "/fapshi-icon.png",
-                    alt: "Fapshi",
-                    style: { height: "16px", marginRight: "8px" }
-                  }
-                ),
-                style: {
-                  background: "#FF6B00",
-                  borderColor: "#FF6B00",
-                  boxShadow: "0 2px 0 rgba(255, 107, 0, 0.1)",
-                  fontWeight: 600
-                },
-                className: "hover:opacity-90 transition-opacity",
-                children: "Pay with Fapshi"
-              }
-            ),
-            /* @__PURE__ */ jsx(
-              Button,
-              {
-                type: "primary",
-                size: "large",
-                block: true,
-                onClick: () => {
-                  if (isPremiumLoading) return;
-                  if (premiumLink == null ? void 0 : premiumLink.url) {
-                    window.location.href = premiumLink.url;
-                  } else {
-                    message.warning("Payment link not available. Please try again later.");
-                    refetch();
-                  }
-                },
-                loading: isPremiumLoading,
-                icon: /* @__PURE__ */ jsx("i", { className: "las la-gem" }),
-                style: {
-                  background: "#1890ff",
-                  borderColor: "#1890ff"
-                },
-                children: isPremiumLoading ? "Loading..." : "Pay Now"
-              }
-            ),
-            /* @__PURE__ */ jsx(
-              Button,
-              {
-                type: "default",
-                size: "large",
-                block: true,
-                onClick: () => window.open("/pricing", "_blank"),
-                icon: /* @__PURE__ */ jsx("i", { className: "las la-info-circle" }),
-                children: "Learn More"
+                title: "Premium Subscription",
+                extra: /* @__PURE__ */ jsx(Button, { type: "primary", size: "large", onClick: handleUpgrade, children: "Upgrade Now" }),
+                children: [
+                  /* @__PURE__ */ jsx(Title$2, { level: 3, children: "XAF 10,000" }),
+                  /* @__PURE__ */ jsx(Text$2, { type: "secondary", children: "Unlock all premium features and courses for one month." })
+                ]
               }
             )
-          ] })
-        ]
+          }
+        )
       }
-    ) }, index)) }),
-    /* @__PURE__ */ jsx("div", { style: { textAlign: "center", marginTop: 48 }, children: /* @__PURE__ */ jsxs(Text$1, { type: "secondary", children: [
-      /* @__PURE__ */ jsx("i", { className: "las la-lock", style: { marginRight: 8 } }),
-      "Secure payment powered by Fapshi - Premium Features Await!"
-    ] }) })
+    ),
+    /* @__PURE__ */ jsxs(Card, { style: { marginTop: "32px" }, children: [
+      /* @__PURE__ */ jsx(Title$2, { level: 3, children: "Premium Features" }),
+      /* @__PURE__ */ jsx(Row, { gutter: [24, 24], style: { marginTop: "16px" }, children: premiumFeatures.map((feature, index) => /* @__PURE__ */ jsx(Col, { xs: 24, md: 8, children: /* @__PURE__ */ jsxs(Card, { children: [
+        /* @__PURE__ */ jsx(
+          "i",
+          {
+            className: `las la-${feature.icon}`,
+            style: { fontSize: "24px" }
+          }
+        ),
+        /* @__PURE__ */ jsx(Title$2, { level: 4, style: { marginTop: "16px" }, children: feature.title }),
+        /* @__PURE__ */ jsx(Text$2, { type: "secondary", children: feature.description })
+      ] }) }, index)) })
+    ] }),
+    /* @__PURE__ */ jsx(
+      CoursePaymentModal,
+      {
+        isOpen: isPaymentModalOpen,
+        onClose: () => setIsPaymentModalOpen(false),
+        courseId: "premium-plan",
+        courseTitle: "Premium Subscription",
+        amount: "10000",
+        onSuccess: handlePaymentSuccess,
+        onError: handlePaymentError,
+        type: "SUBSCRIPTION"
+      }
+    )
   ] }) });
 }
 const route15 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
@@ -6484,14 +6670,243 @@ const route16 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePrope
   __proto__: null,
   default: RegisterPage
 }, Symbol.toStringTag, { value: "Module" }));
+const { Text: Text$1, Title: Title$1 } = Typography;
+function WalletPaymentModal({
+  isOpen,
+  onClose,
+  type,
+  onSuccess,
+  onError
+}) {
+  useNavigate();
+  const [form] = Form.useForm();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [transactionId, setTransactionId] = useState(null);
+  const [status, setStatus] = useState("form");
+  const [pollingCount, setPollingCount] = useState(0);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const { mutateAsync: initiateDeposit } = Api.billing.initiateDeposit.useMutation();
+  const { mutateAsync: processWithdrawal } = Api.billing.processWithdrawal.useMutation();
+  const { data: paymentStatus, refetch: checkPaymentStatus } = Api.fapshi.getPaymentStatus.useQuery(
+    { transId: transactionId || "" },
+    { enabled: !!transactionId }
+  );
+  useEffect(() => {
+    let pollInterval;
+    let timeoutId;
+    if (status === "pending" && transactionId) {
+      checkPaymentStatus();
+      pollInterval = setInterval(() => {
+        checkPaymentStatus();
+        setPollingCount((prev) => prev + 1);
+      }, 3e4);
+      timeoutId = setTimeout(() => {
+        if (status === "pending") {
+          clearInterval(pollInterval);
+          setStatus("timeout");
+        }
+      }, 30 * 60 * 1e3);
+    }
+    return () => {
+      if (pollInterval) clearInterval(pollInterval);
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [status, transactionId, checkPaymentStatus]);
+  useEffect(() => {
+    if (paymentStatus) {
+      if (paymentStatus.status === "SUCCESSFUL") {
+        setStatus("success");
+        onSuccess();
+      } else if (paymentStatus.status === "FAILED") {
+        setStatus("failed");
+        onError("Payment failed. Please try again.");
+      } else if (paymentStatus.status === "PENDING" && status === "pending") ;
+    }
+  }, [paymentStatus, onSuccess, onError, status]);
+  const handleSubmit = async (values) => {
+    setIsSubmitting(true);
+    try {
+      if (type === "deposit") {
+        const transactionId2 = await initiateDeposit({
+          amount: values.amount,
+          phoneNumber: values.phoneNumber
+        });
+        setTransactionId(transactionId2);
+        setStatus("pending");
+      } else {
+        await processWithdrawal({
+          amount: values.amount,
+          phoneNumber: values.phoneNumber
+        });
+        onSuccess();
+      }
+    } catch (error) {
+      onError(error.message || "Failed to process payment");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      const result = await checkPaymentStatus();
+      if ((result == null ? void 0 : result.status) === "SUCCESSFUL") {
+        setStatus("success");
+        onSuccess();
+      } else if ((result == null ? void 0 : result.status) === "FAILED") {
+        setStatus("failed");
+        onError("Payment failed. Please try again.");
+      } else {
+        setStatus("pending");
+      }
+    } catch (error) {
+      setStatus("failed");
+      onError("Error checking payment status");
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+  const renderContent = () => {
+    switch (status) {
+      case "form":
+        return /* @__PURE__ */ jsxs(Form, { form, onFinish: handleSubmit, layout: "vertical", children: [
+          /* @__PURE__ */ jsx(
+            Form.Item,
+            {
+              name: "amount",
+              label: "Amount",
+              rules: [
+                { required: true, message: "Please enter amount" },
+                { pattern: /^\d+$/, message: "Please enter a valid amount" },
+                { validator: (_, value) => {
+                  if (value && parseInt(value) <= 0) {
+                    return Promise.reject("Amount must be greater than 0");
+                  }
+                  return Promise.resolve();
+                } }
+              ],
+              children: /* @__PURE__ */ jsx(Input, { prefix: "XAF" })
+            }
+          ),
+          /* @__PURE__ */ jsx(
+            Form.Item,
+            {
+              name: "phoneNumber",
+              label: "Phone Number",
+              rules: [
+                { required: true, message: "Please enter phone number" },
+                {
+                  pattern: /^(237|\+237)?[6-9][0-9]{8}$/,
+                  message: "Please enter a valid Cameroon phone number"
+                }
+              ],
+              children: /* @__PURE__ */ jsx(Input, { addonBefore: "+237" })
+            }
+          )
+        ] });
+      case "pending":
+        return /* @__PURE__ */ jsxs(Space, { direction: "vertical", align: "center", style: { width: "100%" }, children: [
+          /* @__PURE__ */ jsx(Spin, { size: "large" }),
+          /* @__PURE__ */ jsx(Title$1, { level: 4, children: "Waiting for Payment Confirmation" }),
+          /* @__PURE__ */ jsx(Text$1, { type: "secondary", children: "Please check your phone and confirm the payment request" }),
+          /* @__PURE__ */ jsxs(Space, { direction: "vertical", style: { width: "100%", marginTop: 24 }, children: [
+            /* @__PURE__ */ jsx(
+              Alert,
+              {
+                message: "Payment Details",
+                description: /* @__PURE__ */ jsxs(Space, { direction: "vertical", children: [
+                  /* @__PURE__ */ jsxs(Text$1, { children: [
+                    "Amount: ",
+                    form.getFieldValue("amount"),
+                    " XAF"
+                  ] }),
+                  /* @__PURE__ */ jsxs(Text$1, { children: [
+                    "Phone: ",
+                    form.getFieldValue("phoneNumber")
+                  ] }),
+                  /* @__PURE__ */ jsxs(Text$1, { children: [
+                    "Transaction ID: ",
+                    transactionId
+                  ] })
+                ] }),
+                type: "info",
+                showIcon: true
+              }
+            ),
+            /* @__PURE__ */ jsxs("div", { style: { textAlign: "center", marginTop: 16 }, children: [
+              /* @__PURE__ */ jsx(Spin, { size: "small" }),
+              /* @__PURE__ */ jsx(Text$1, { type: "secondary", style: { marginLeft: 8 }, children: "Checking payment status..." })
+            ] })
+          ] })
+        ] });
+      case "timeout":
+        return /* @__PURE__ */ jsxs(Space, { direction: "vertical", align: "center", style: { width: "100%" }, children: [
+          /* @__PURE__ */ jsx(
+            Alert,
+            {
+              message: "Payment Status Unclear",
+              description: "We couldn't confirm your payment status. Would you like to check again?",
+              type: "warning",
+              showIcon: true
+            }
+          ),
+          /* @__PURE__ */ jsx(
+            Button,
+            {
+              type: "primary",
+              onClick: handleRefresh,
+              loading: isRefreshing,
+              style: { marginTop: 16 },
+              children: "Check Status Again"
+            }
+          )
+        ] });
+      case "failed":
+        return /* @__PURE__ */ jsxs(Space, { direction: "vertical", align: "center", style: { width: "100%" }, children: [
+          /* @__PURE__ */ jsx(
+            Alert,
+            {
+              message: "Payment Failed",
+              description: "Your payment could not be processed. Please try again.",
+              type: "error",
+              showIcon: true
+            }
+          ),
+          /* @__PURE__ */ jsx(Button, { type: "primary", danger: true, onClick: onClose, style: { marginTop: 16 }, children: "Close" })
+        ] });
+      default:
+        return null;
+    }
+  };
+  return /* @__PURE__ */ jsx(
+    Modal,
+    {
+      open: isOpen,
+      onCancel: onClose,
+      footer: status === "form" ? [
+        /* @__PURE__ */ jsx(Button, { onClick: onClose, children: "Cancel" }, "cancel"),
+        /* @__PURE__ */ jsx(
+          Button,
+          {
+            type: "primary",
+            onClick: () => form.submit(),
+            loading: isSubmitting,
+            children: type === "deposit" ? "Deposit" : "Withdraw"
+          },
+          "submit"
+        )
+      ] : null,
+      width: 500,
+      title: type === "deposit" ? "Mobile Money Deposit" : "Withdraw Funds",
+      children: renderContent()
+    }
+  );
+}
 const { Title, Text } = Typography;
 function WalletPage() {
   const { user } = useUserContext();
-  const [withdrawForm] = Form.useForm();
   const [isWithdrawModalVisible, setIsWithdrawModalVisible] = useState(false);
   const [isDepositModalVisible, setIsDepositModalVisible] = useState(false);
-  const [isDepositing, setIsDepositing] = useState(false);
-  const [depositForm] = Form.useForm();
   const { data: wallet, refetch: refetchWallet } = Api.wallet.findFirst.useQuery({
     where: { userId: user == null ? void 0 : user.id }
   });
@@ -6499,38 +6914,12 @@ function WalletPage() {
     where: { userId: user == null ? void 0 : user.id },
     orderBy: { createdAt: "desc" }
   });
-  const { mutateAsync: initiateDeposit } = Api.billing.initiateDeposit.useMutation();
-  const { mutateAsync: processWithdrawal } = Api.billing.processWithdrawal.useMutation();
-  const handleDeposit = async (values) => {
-    setIsDepositing(true);
-    try {
-      await initiateDeposit({
-        amount: values.amount,
-        phoneNumber: values.phoneNumber
-      });
-      setIsDepositModalVisible(false);
-      depositForm.resetFields();
-      refetchWallet();
-      message.success("Dépôt Mobile Money initié avec succès");
-    } catch (error) {
-      message.error(error.message);
-    } finally {
-      setIsDepositing(false);
-    }
+  const handleSuccess = () => {
+    refetchWallet();
+    message.success("Operation completed successfully");
   };
-  const handleWithdraw = async (values) => {
-    try {
-      await processWithdrawal({
-        amount: values.amount,
-        phoneNumber: values.phoneNumber
-      });
-      message.success("Mobile Money withdrawal processed successfully");
-      withdrawForm.resetFields();
-      setIsWithdrawModalVisible(false);
-      refetchWallet();
-    } catch (error) {
-      message.error(error.message || "Failed to process withdrawal");
-    }
+  const handleError = (msg) => {
+    message.error(msg);
   };
   const columns = [
     {
@@ -6591,86 +6980,23 @@ function WalletPage() {
       ] }) })
     ] }),
     /* @__PURE__ */ jsx(
-      Modal,
+      WalletPaymentModal,
       {
-        title: "Mobile Money Deposit",
-        open: isDepositModalVisible,
-        onOk: () => depositForm.submit(),
-        onCancel: () => setIsDepositModalVisible(false),
-        okButtonProps: { loading: isDepositing },
-        children: /* @__PURE__ */ jsxs(Form, { form: depositForm, onFinish: handleDeposit, children: [
-          /* @__PURE__ */ jsx(
-            Form.Item,
-            {
-              name: "amount",
-              label: "Amount",
-              rules: [
-                { required: true, message: "Please enter deposit amount" },
-                { pattern: /^\d+$/, message: "Please enter a valid amount" },
-                { validator: (_, value) => {
-                  if (value && parseInt(value) <= 0) {
-                    return Promise.reject("Amount must be greater than 0");
-                  }
-                  return Promise.resolve();
-                } }
-              ],
-              children: /* @__PURE__ */ jsx(Input, { prefix: "XAF" })
-            }
-          ),
-          /* @__PURE__ */ jsx(
-            Form.Item,
-            {
-              name: "phoneNumber",
-              label: "Phone Number",
-              rules: [
-                { required: true, message: "Please enter phone number" },
-                {
-                  pattern: /^(237|\\+237)?[6-9][0-9]{8}$/,
-                  message: "Please enter a valid Cameroon phone number"
-                }
-              ],
-              children: /* @__PURE__ */ jsx(Input, { addonBefore: "+237" })
-            }
-          )
-        ] })
+        isOpen: isDepositModalVisible,
+        onClose: () => setIsDepositModalVisible(false),
+        type: "deposit",
+        onSuccess: handleSuccess,
+        onError: handleError
       }
     ),
     /* @__PURE__ */ jsx(
-      Modal,
+      WalletPaymentModal,
       {
-        title: "Withdraw Funds",
-        open: isWithdrawModalVisible,
-        onOk: () => withdrawForm.submit(),
-        onCancel: () => setIsWithdrawModalVisible(false),
-        children: /* @__PURE__ */ jsxs(Form, { form: withdrawForm, onFinish: handleWithdraw, children: [
-          /* @__PURE__ */ jsx(
-            Form.Item,
-            {
-              name: "amount",
-              label: "Amount",
-              rules: [
-                { required: true, message: "Please enter withdrawal amount" },
-                { pattern: /^\d+$/, message: "Please enter a valid amount" }
-              ],
-              children: /* @__PURE__ */ jsx(Input, { prefix: "NGN" })
-            }
-          ),
-          /* @__PURE__ */ jsx(
-            Form.Item,
-            {
-              name: "phoneNumber",
-              label: "Phone Number",
-              rules: [
-                { required: true, message: "Please enter phone number" },
-                {
-                  pattern: /^(237|\\+237)?[6-9][0-9]{8}$/,
-                  message: "Please enter a valid Cameroon phone number"
-                }
-              ],
-              children: /* @__PURE__ */ jsx(Input, { addonBefore: "+237" })
-            }
-          )
-        ] })
+        isOpen: isWithdrawModalVisible,
+        onClose: () => setIsWithdrawModalVisible(false),
+        type: "withdraw",
+        onSuccess: handleSuccess,
+        onError: handleError
       }
     )
   ] });
@@ -7159,6 +7485,16 @@ function createRouter(router, procedure2) {
     }
   );
 }
+const validateFapshiKeys = () => {
+  const requiredKeys = ["FAPSHI_BASE_URL", "FAPSHI_API_USER", "FAPSHI_API_KEY"];
+  const missingKeys = requiredKeys.filter((key) => !process.env[key]);
+  if (missingKeys.length > 0) {
+    throw new Error(
+      `Missing required Fapshi environment variables: ${missingKeys.join(", ")}`
+    );
+  }
+};
+validateFapshiKeys();
 const validateFlutterwaveKeys = () => {
   const requiredKeys = ["FLW_PUBLIC_KEY", "FLW_SECRET_KEY", "FLW_ENCRYPTION_KEY"];
   const missingKeys = requiredKeys.filter((key) => !process.env[key]);
@@ -7580,210 +7916,337 @@ var AiServer;
   AiServer2.service = AiService;
   AiServer2.trpcRouter = AiRouter;
 })(AiServer || (AiServer = {}));
-const COMMISSION_PERCENTAGE = 0.5;
-class FlutterwaveProvider {
+const _FapshiService = class _FapshiService {
   constructor() {
-    __publicField(this, "flw");
-    const publicKey = process.env.FLW_PUBLIC_KEY;
-    const secretKey = process.env.FLW_SECRET_KEY;
-    const encryptionKey = process.env.FLW_ENCRYPTION_KEY;
-    if (!publicKey || !secretKey || !encryptionKey) {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Missing required Flutterwave configuration keys"
-      });
+    __publicField(this, "baseUrl");
+    __publicField(this, "apiUser");
+    __publicField(this, "apiKey");
+    this.baseUrl = Configuration.getFapshiBaseUrl();
+    this.apiUser = Configuration.getFapshiApiUser();
+    this.apiKey = Configuration.getFapshiApiKey();
+  }
+  static getInstance() {
+    if (!_FapshiService.instance) {
+      _FapshiService.instance = new _FapshiService();
     }
-    if (!publicKey.startsWith("FLWPUBK-")) {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Invalid Flutterwave public key format"
-      });
-    }
-    if (!secretKey.startsWith("FLWSECK-")) {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Invalid Flutterwave secret key format"
-      });
-    }
-    this.flw = new Flutterwave(publicKey, secretKey);
+    return _FapshiService.instance;
   }
-  isActive() {
-    return true;
-  }
-  async createCustomer(customer) {
-    return customer.email;
-  }
-  async createPaymentLink(options) {
-    const payload = {
-      tx_ref: `tx-${Date.now()}`,
-      amount: "100",
-      // Get from product
-      currency: "XAF",
-      redirect_url: options.urlRedirection || "https://example.com",
-      customer: {
-        email: options.customerId
-      },
-      meta: options.metadata,
-      customizations: {
-        title: "Paiement Mobile Money",
-        description: "Paiement par Mobile Money"
-      },
-      payment_type: "mobilemoneyfr",
-      country: "CM",
-      phone_number: options.phoneNumber
-    };
-    const response = await this.flw.MobileMoney.charge(payload);
-    if (!response.status || response.status !== "success") {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Le paiement Mobile Money a échoué. Veuillez réessayer."
-      });
-    }
-    return response.data.link;
-  }
-  async findManySubscriptions(customerId) {
-    return [];
-  }
-  async findManyPayments(customerId) {
-    const transactions = await this.flw.Transaction.fetch({
-      customer_email: customerId
+  async getWalletBalance(userId) {
+    const wallet = await Database.wallet.findFirst({
+      where: { userId }
     });
-    return transactions.data.map((tx) => ({
-      id: tx.id.toString(),
-      amount: tx.amount.toString(),
-      currency: tx.currency,
-      status: tx.status,
-      created: new Date(tx.created_at).toISOString()
-    }));
-  }
-  async findManyProducts() {
-    return [];
-  }
-  async onPayment(body, sig) {
-    var _a2;
-    const secretHash = process.env.FLUTTERWAVE_SECRET_HASH;
-    const payload = JSON.parse(body.toString());
-    const isValid = this.flw.Webhook.verifyWebhook(sig, secretHash);
-    if (!isValid) {
-      throw new Error("Invalid webhook signature");
+    if (!wallet) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Wallet not found"
+      });
     }
-    return {
-      userId: (_a2 = payload.data.meta) == null ? void 0 : _a2.userId,
-      customerId: payload.data.customer.email,
-      transactionRef: payload.data.tx_ref,
-      amount: payload.data.amount
-    };
+    return wallet;
   }
-  async getReferralCommission(amount) {
-    const commission = parseFloat(amount) * COMMISSION_PERCENTAGE;
-    return commission.toString();
-  }
-  async getWalletBalance(customerId) {
-    return { balance: "0" };
-  }
-  async depositToWallet(options) {
-    var _a2, _b2, _c, _d;
-    const payload = {
-      tx_ref: `withdrawal-${Date.now()}`,
-      amount: options.amount,
-      currency: "XAF",
-      customer: { email: options.customerId },
-      payment_type: "mobilemoneyfr",
-      country: "CM",
-      phone_number: options.phoneNumber
-    };
+  async initiatePayment(data) {
+    var _a2, _b2;
     try {
-      const response = await this.flw.MobileMoney.charge(payload);
-      if (!response.status || response.status !== "success") {
+      const response = await axios.post(
+        `${this.baseUrl}/direct-pay`,
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            apiuser: this.apiUser,
+            apikey: this.apiKey
+          }
+        }
+      );
+      if (!response.data.transId) {
         throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Le dépôt Mobile Money a échoué. Veuillez réessayer."
+          code: "BAD_REQUEST",
+          message: "Failed to initiate payment"
         });
       }
-      return true;
+      return {
+        transactionId: response.data.transId,
+        message: "Payment request initiated"
+      };
     } catch (error) {
-      console.error("Flutterwave API Error:", {
-        status: (_a2 = error.response) == null ? void 0 : _a2.status,
-        data: (_b2 = error.response) == null ? void 0 : _b2.data,
-        message: error.message
-      });
-      const errorCode = (_d = (_c = error.response) == null ? void 0 : _c.data) == null ? void 0 : _d.code;
-      const errorMessage = {
-        "INSUFFICIENT_FUNDS": "Solde insuffisant pour effectuer le dépôt",
-        "INVALID_PHONE": "Numéro de téléphone invalide",
-        "NETWORK_ERROR": "Erreur réseau, veuillez réessayer"
-      }[errorCode] || "Le dépôt Mobile Money a échoué. Veuillez réessayer.";
+      if (axios.isAxiosError(error) && ((_b2 = (_a2 = error.response) == null ? void 0 : _a2.data) == null ? void 0 : _b2.message)) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: error.response.data.message
+        });
+      }
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
-        message: errorMessage
+        message: "Payment processing failed"
       });
     }
   }
-  async withdrawFromWallet(options) {
-    const payload = {
-      tx_ref: `withdrawal-${Date.now()}`,
-      amount: options.amount,
-      currency: "XAF",
-      customer: { email: options.customerId },
-      payment_type: "mobilemoneyfr",
-      country: "CM",
-      phone_number: options.phoneNumber
-    };
-    const response = await this.flw.MobileMoney.charge(payload);
-    if (!response.status || response.status !== "success") {
+  async getPaymentStatus(transId) {
+    try {
+      const response = await axios.get(
+        `${this.baseUrl}/payment-status/${transId}`,
+        {
+          headers: {
+            apiuser: this.apiUser,
+            apikey: this.apiKey
+          }
+        }
+      );
+      return response.data;
+    } catch (error) {
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
-        message: "Le retrait Mobile Money a échoué. Veuillez réessayer."
+        message: "Failed to get payment status"
       });
     }
-    return true;
   }
-}
+  async handleWebhook(data) {
+    try {
+      const transaction = await Database.transaction.findFirst({
+        where: { providerTransactionId: data.transId }
+      });
+      if (!transaction) {
+        await Database.transaction.create({
+          data: {
+            amount: data.amount.toString(),
+            type: data.externalId.startsWith("payment_") ? "DEPOSIT" : data.externalId.startsWith("course_") ? "COURSE_PURCHASE" : "SUBSCRIPTION",
+            status: data.status === "SUCCESSFUL" ? "SUCCESS" : "FAILED",
+            providerTransactionId: data.transId,
+            userId: data.userId
+          }
+        });
+      } else {
+        await Database.transaction.update({
+          where: { id: transaction.id },
+          data: {
+            status: data.status === "SUCCESSFUL" ? "SUCCESS" : "FAILED"
+          }
+        });
+      }
+      if (data.status === "SUCCESSFUL") {
+        if (data.externalId.startsWith("payment_")) {
+          const wallet = await Database.wallet.findFirst({
+            where: { userId: data.userId }
+          });
+          if (wallet) {
+            const existingSuccessfulTransaction = await Database.transaction.findFirst({
+              where: {
+                providerTransactionId: data.transId,
+                status: "SUCCESS"
+              }
+            });
+            if (!existingSuccessfulTransaction) {
+              const newBalance = (parseFloat(wallet.balance) + data.amount).toString();
+              const newTotalEarnings = (parseFloat(wallet.totalEarnings) + data.amount).toString();
+              await Database.wallet.update({
+                where: { id: wallet.id },
+                data: {
+                  balance: newBalance,
+                  totalEarnings: newTotalEarnings
+                }
+              });
+              await Database.walletBalanceHistory.create({
+                data: {
+                  walletId: wallet.id,
+                  amount: data.amount.toString(),
+                  type: "DEPOSIT",
+                  balance: newBalance,
+                  transactionId: (transaction == null ? void 0 : transaction.id) || void 0
+                }
+              });
+            }
+          }
+        } else if (data.externalId.startsWith("course_")) {
+          const courseId = data.externalId.replace("course_", "");
+          const existingEnrollment = await Database.userCourse.findFirst({
+            where: {
+              courseId,
+              userId: data.userId
+            }
+          });
+          if (!existingEnrollment) {
+            await Database.userCourse.create({
+              data: {
+                courseId,
+                userId: data.userId
+              }
+            });
+          }
+        } else if (data.externalId.startsWith("subscription_")) {
+          const subscriptionId = data.externalId.replace("subscription_", "");
+          const existingSubscription = await Database.subscription.findFirst({
+            where: {
+              id: subscriptionId,
+              userId: data.userId
+            }
+          });
+          if (!existingSubscription) {
+            const startDate = /* @__PURE__ */ new Date();
+            const endDate = /* @__PURE__ */ new Date();
+            endDate.setMonth(endDate.getMonth() + 1);
+            await Database.subscription.create({
+              data: {
+                id: subscriptionId,
+                userId: data.userId,
+                status: "active",
+                startDate: startDate.toISOString(),
+                endDate: endDate.toISOString(),
+                planType: "PREMIUM"
+              }
+            });
+            await Database.user.update({
+              where: { id: data.userId },
+              data: { globalRole: "PREMIUM" }
+            });
+          }
+        }
+      }
+      return { received: true };
+    } catch (error) {
+      console.error("Webhook processing error:", error);
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Webhook processing failed"
+      });
+    }
+  }
+};
+__publicField(_FapshiService, "instance");
+let FapshiService = _FapshiService;
+const FapshiRouter = Trpc.createRouter({
+  initiatePayment: Trpc.procedure.input(
+    z.object({
+      amount: z.number(),
+      phone: z.string(),
+      message: z.string().optional(),
+      type: z.enum(["DEPOSIT", "COURSE_PURCHASE", "SUBSCRIPTION"]),
+      referenceId: z.string().optional()
+      // courseId or subscriptionId
+    })
+  ).mutation(async ({ ctx, input }) => {
+    const user = await ctx.database.user.findUniqueOrThrow({
+      where: { id: ctx.session.user.id }
+    });
+    let externalId = "";
+    if (input.type === "DEPOSIT") {
+      externalId = `payment_${Date.now()}`;
+    } else if (input.type === "COURSE_PURCHASE" && input.referenceId) {
+      externalId = `course_${input.referenceId}`;
+    } else if (input.type === "SUBSCRIPTION" && input.referenceId) {
+      externalId = `subscription_${input.referenceId}`;
+    }
+    return FapshiService.getInstance().initiatePayment({
+      amount: input.amount,
+      phone: input.phone,
+      email: user.email || "",
+      userId: user.id,
+      externalId,
+      message: input.message || `${input.type} payment`,
+      name: user.name || user.email || ""
+    });
+  }),
+  getPaymentStatus: Trpc.procedure.input(z.object({ transId: z.string() })).query(async ({ input }) => {
+    return FapshiService.getInstance().getPaymentStatus(input.transId);
+  }),
+  handleWebhook: Trpc.procedurePublic.input(
+    z.object({
+      transId: z.string(),
+      status: z.string(),
+      medium: z.string(),
+      serviceName: z.string(),
+      amount: z.number(),
+      revenue: z.number(),
+      payerName: z.string(),
+      email: z.string(),
+      redirectUrl: z.string(),
+      externalId: z.string(),
+      userId: z.string(),
+      webhook: z.string(),
+      financialTransId: z.string(),
+      dateInitiated: z.string(),
+      dateConfirmed: z.string()
+    })
+  ).mutation(async ({ input }) => {
+    return FapshiService.getInstance().handleWebhook(input);
+  })
+});
 class Service5 {
   constructor() {
-    __publicField(this, "provider", new FlutterwaveProvider());
+    __publicField(this, "provider", FapshiService.getInstance());
   }
   isActive() {
-    var _a2;
-    if (this.provider) {
-      return (_a2 = this.provider) == null ? void 0 : _a2.isActive();
-    }
-    return false;
+    return true;
   }
   getCustomerId(user) {
-    return user.email;
+    return user.id;
   }
   async getWalletBalance(user) {
-    const wallet = await this.provider.getWalletBalance(
-      this.getCustomerId(user)
-    );
+    const wallet = await this.provider.getWalletBalance(user.id);
     return wallet.balance;
   }
   async depositToWallet(user, amount, phoneNumber) {
-    return this.provider.depositToWallet({
-      customerId: this.getCustomerId(user),
-      amount,
-      phoneNumber
+    const result = await this.provider.initiatePayment({
+      userId: user.id,
+      amount: parseFloat(amount),
+      phone: phoneNumber,
+      email: user.email || "",
+      externalId: `deposit_${Date.now()}`,
+      message: "Wallet deposit",
+      name: user.name || "User"
     });
+    await Database.transaction.create({
+      data: {
+        amount,
+        type: "DEPOSIT",
+        status: "PENDING",
+        providerTransactionId: result.transactionId,
+        userId: user.id
+      }
+    });
+    return result.transactionId;
   }
   async withdrawFromWallet(options) {
-    await this.provider.withdrawFromWallet(options);
+    const result = await this.provider.initiatePayment({
+      userId: options.customerId,
+      amount: parseFloat(options.amount),
+      phone: options.phoneNumber,
+      email: "",
+      // We'll need to get this from the user
+      externalId: `withdrawal_${Date.now()}`,
+      message: "Wallet withdrawal",
+      name: "User"
+      // We'll need to get this from the user
+    });
+    await Database.transaction.create({
+      data: {
+        amount: options.amount,
+        type: "WITHDRAWAL",
+        status: "PENDING",
+        providerTransactionId: result.transactionId,
+        userId: options.customerId
+      }
+    });
   }
   async findManyProducts() {
-    return this.provider.findManyProducts();
+    return [];
   }
   async findManySubscriptions(customer) {
-    return this.provider.findManySubscriptions(this.getCustomerId(customer));
+    return [];
   }
   async findManyPayments(user) {
-    return this.provider.findManyPayments(this.getCustomerId(user));
+    return [];
   }
   async createPaymentLink(options) {
-    const optionsPayment = {
-      ...options,
-      customerId: this.getCustomerId(options.user)
-    };
-    return this.provider.createPaymentLink(optionsPayment);
+    const payment = await this.provider.initiatePayment({
+      userId: options.user.id,
+      amount: parseFloat(options.productId),
+      // Using productId as amount since we don't have products in Fapshi
+      phone: options.phoneNumber,
+      email: options.user.email || "",
+      externalId: `payment_${Date.now()}`,
+      message: "Product payment",
+      name: options.user.name || "User"
+    });
+    return payment.transactionId;
   }
 }
 class Singleton {
@@ -7793,12 +8256,6 @@ const PaymentService = Singleton.service;
 const BillingRouter = Trpc.createRouter({
   getWalletBalance: Trpc.procedure.input(z.object({})).query(async ({ ctx }) => {
     var _a2, _b2;
-    if (!PaymentService.isActive()) {
-      throw new TRPCError({
-        code: "BAD_REQUEST",
-        message: "Payment provider not configured"
-      });
-    }
     const userId = (_b2 = (_a2 = ctx.session) == null ? void 0 : _a2.user) == null ? void 0 : _b2.id;
     const user = await ctx.database.user.findFirstOrThrow({
       where: { id: userId }
@@ -7810,12 +8267,6 @@ const BillingRouter = Trpc.createRouter({
     phoneNumber: z.string().regex(/^(237|\+237)?[6-9][0-9]{8}$/, "Invalid Cameroon phone number")
   })).mutation(async ({ ctx, input }) => {
     var _a2, _b2;
-    if (!PaymentService.isActive()) {
-      throw new TRPCError({
-        code: "BAD_REQUEST",
-        message: "Payment provider not configured"
-      });
-    }
     const userId = (_b2 = (_a2 = ctx.session) == null ? void 0 : _a2.user) == null ? void 0 : _b2.id;
     const user = await ctx.database.user.findFirstOrThrow({
       where: { id: userId }
@@ -7829,12 +8280,6 @@ const BillingRouter = Trpc.createRouter({
     }).required()
   ).mutation(async ({ ctx, input }) => {
     var _a2, _b2;
-    if (!PaymentService.isActive()) {
-      throw new TRPCError({
-        code: "BAD_REQUEST",
-        message: "Payment provider not configured"
-      });
-    }
     try {
       const userId = (_b2 = (_a2 = ctx.session) == null ? void 0 : _a2.user) == null ? void 0 : _b2.id;
       const user = await ctx.database.user.findFirstOrThrow({
@@ -7854,12 +8299,6 @@ const BillingRouter = Trpc.createRouter({
   }),
   getReferralCommissions: Trpc.procedure.input(z.object({})).query(async ({ ctx }) => {
     var _a2, _b2;
-    if (!PaymentService.isActive()) {
-      throw new TRPCError({
-        code: "BAD_REQUEST",
-        message: "Payment provider not configured"
-      });
-    }
     const userId = (_b2 = (_a2 = ctx.session) == null ? void 0 : _a2.user) == null ? void 0 : _b2.id;
     const referrals = await ctx.database.referral.findMany({
       where: { referrerId: userId },
@@ -7878,7 +8317,7 @@ const BillingRouter = Trpc.createRouter({
     return referrals.reduce((total, referral) => {
       const commission = referral.transactions.reduce((sum, tx) => {
         if (tx.type === "REFERRAL" && tx.status === "COMPLETED") {
-          return sum + parseFloat(tx.amount || "0") * COMMISSION_PERCENTAGE;
+          return sum + parseFloat(tx.amount || "0") * 0.1;
         }
         return sum;
       }, 0);
@@ -7886,36 +8325,18 @@ const BillingRouter = Trpc.createRouter({
     }, 0).toString();
   }),
   findManyProducts: Trpc.procedurePublic.input(z.object({})).query(async () => {
-    if (!PaymentService.isActive()) {
-      throw new TRPCError({
-        code: "BAD_REQUEST",
-        message: "Payment provider not configured"
-      });
-    }
-    return PaymentService.findManyProducts();
+    return [];
   }),
-  findManyPayments: Trpc.procedure.input(z.object({})).query(async ({ ctx, input }) => {
+  findManyPayments: Trpc.procedure.input(z.object({})).query(async ({ ctx }) => {
     var _a2, _b2;
-    if (!PaymentService.isActive()) {
-      throw new TRPCError({
-        code: "BAD_REQUEST",
-        message: "Payment provider not configured"
-      });
-    }
     const userId = (_b2 = (_a2 = ctx.session) == null ? void 0 : _a2.user) == null ? void 0 : _b2.id;
     const user = await ctx.database.user.findFirstOrThrow({
       where: { id: userId }
     });
     return PaymentService.findManyPayments(user);
   }),
-  findManySubscriptions: Trpc.procedure.input(z.object({})).query(async ({ ctx, input }) => {
+  findManySubscriptions: Trpc.procedure.input(z.object({})).query(async ({ ctx }) => {
     var _a2, _b2;
-    if (!PaymentService.isActive()) {
-      throw new TRPCError({
-        code: "BAD_REQUEST",
-        message: "Payment provider not configured"
-      });
-    }
     const userId = (_b2 = (_a2 = ctx.session) == null ? void 0 : _a2.user) == null ? void 0 : _b2.id;
     const user = await ctx.database.user.findFirstOrThrow({
       where: { id: userId }
@@ -7929,24 +8350,17 @@ const BillingRouter = Trpc.createRouter({
     })
   ).mutation(async ({ ctx, input }) => {
     var _a2, _b2;
-    if (!PaymentService.isActive()) {
-      throw new TRPCError({
-        code: "BAD_REQUEST",
-        message: "Payment provider not configured"
-      });
-    }
     const userId = (_b2 = (_a2 = ctx.session) == null ? void 0 : _a2.user) == null ? void 0 : _b2.id;
     const user = await ctx.database.user.findFirstOrThrow({
       where: { id: userId }
     });
-    const urlRedirection = Configuration.getBaseUrl();
     const url = await PaymentService.createPaymentLink({
       user,
       productId: input.productId,
       metadata: {
         userId: user.id
       },
-      urlRedirection,
+      urlRedirection: Configuration.getBaseUrl(),
       phoneNumber: input.phoneNumber
     });
     return { url };
@@ -7965,7 +8379,8 @@ const appRouter = Trpc.mergeRouters(
     upload: UploadServer.trpcRouter,
     ai: AiServer.trpcRouter,
     email: EmailServer.trpcRouter,
-    billing: PaymentServer.trpcRouter
+    billing: PaymentServer.trpcRouter,
+    fapshi: FapshiRouter
   })
 );
 const handleRequest = async ({
@@ -8042,7 +8457,7 @@ function LandingPage() {
     },
     {
       heading: `Secure Payments`,
-      description: `Integrated Flutterwave payment system with bank-grade security ensures your transactions and earnings are always protected`,
+      description: `Integrated Fapshi payment system with secure mobile money transactions ensures your payments and earnings are always protected`,
       icon: /* @__PURE__ */ jsx("i", { className: "las la-lock" })
     },
     {
@@ -8249,7 +8664,7 @@ const route23 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePrope
   __proto__: null,
   default: LandingPage
 }, Symbol.toStringTag, { value: "Module" }));
-const serverManifest = { "entry": { "module": "/assets/entry.client-uWxq5ryM.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/index-CeUTncnb.js", "/assets/index-DWrdUq8q.js", "/assets/components-BAyeFLBh.js"], "css": ["/assets/entry-8mTYGNPl.css"] }, "routes": { "root": { "id": "root", "parentId": void 0, "path": "", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/root-CeNVPPIm.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/index-CeUTncnb.js", "/assets/index-DWrdUq8q.js", "/assets/components-BAyeFLBh.js", "/assets/root-BCFgc1Xr.js", "/assets/useUserContext-ltZQ69X3.js", "/assets/index-CWUlnviP.js", "/assets/provider-RLEbTht8.js", "/assets/index-C7Q2D2Yy.js", "/assets/index-BzyPBYP5.js"], "css": ["/assets/entry-8mTYGNPl.css"] }, "routes/_logged.admin.courses.$courseId.edit": { "id": "routes/_logged.admin.courses.$courseId.edit", "parentId": "routes/_logged", "path": "admin/courses/:courseId/edit", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DJLp6ZkF.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/index-CWUlnviP.js", "/assets/provider-RLEbTht8.js", "/assets/index-q-G7H0tu.js", "/assets/index-CH34cjkL.js", "/assets/index-CeUTncnb.js", "/assets/index-C8qbBouM.js", "/assets/index-C6x-598G.js", "/assets/index-C7Q2D2Yy.js", "/assets/index-BzyPBYP5.js", "/assets/index-CY1kBE-P.js", "/assets/Pagination-D2AnF2UC.js", "/assets/index-D28acUWU.js", "/assets/index-DqVK0OKb.js", "/assets/Table-D46c5F71.js", "/assets/index-CzA3G1Dw.js", "/assets/collapse-BbEVqHco.js", "/assets/fade-BYpxbwFh.js", "/assets/useBreakpoint-CiMsAa-F.js", "/assets/responsiveObserver-CzlRrsiN.js", "/assets/DeleteOutlined-CXav3FED.js", "/assets/SearchOutlined-ADv_U9mc.js", "/assets/row-B-zWIMNx.js", "/assets/EllipsisOutlined-Bce2vzrs.js", "/assets/index-LQraNpB7.js", "/assets/Dropdown-EsR9A278.js", "/assets/index-B0p7av3r.js", "/assets/useClosable-Bdp6jF3W.js"], "css": [] }, "routes/_logged.courses.$courseId.preview": { "id": "routes/_logged.courses.$courseId.preview", "parentId": "routes/_logged", "path": "courses/:courseId/preview", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CC4KqmXp.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/useUserContext-ltZQ69X3.js", "/assets/index-CWUlnviP.js", "/assets/provider-RLEbTht8.js", "/assets/index-CH34cjkL.js", "/assets/index-CeUTncnb.js", "/assets/index-C7Q2D2Yy.js", "/assets/index-D28acUWU.js", "/assets/index-cPgcPs25.js", "/assets/index-BzyPBYP5.js", "/assets/index-C6x-598G.js", "/assets/Pagination-D2AnF2UC.js", "/assets/useBreakpoint-CiMsAa-F.js", "/assets/responsiveObserver-CzlRrsiN.js", "/assets/EllipsisOutlined-Bce2vzrs.js", "/assets/index-LQraNpB7.js", "/assets/SearchOutlined-ADv_U9mc.js", "/assets/row-B-zWIMNx.js", "/assets/Dropdown-EsR9A278.js", "/assets/index-BHyeewtM.js"], "css": [] }, "routes/_auth.reset-password.$token_": { "id": "routes/_auth.reset-password.$token_", "parentId": "root", "path": "reset-password/:token", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-LHy3YPzh.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/index-CWUlnviP.js", "/assets/provider-RLEbTht8.js", "/assets/index-CeUTncnb.js", "/assets/index-C8qbBouM.js", "/assets/index-C7Q2D2Yy.js", "/assets/index-HjNU2j5p.js", "/assets/index-9K41UzrV.js", "/assets/index-BzyPBYP5.js", "/assets/SearchOutlined-ADv_U9mc.js", "/assets/collapse-BbEVqHco.js", "/assets/row-B-zWIMNx.js", "/assets/responsiveObserver-CzlRrsiN.js", "/assets/index-bZIECVya.js"], "css": [] }, "routes/_logged.admin.control-panel_": { "id": "routes/_logged.admin.control-panel_", "parentId": "routes/_logged", "path": "admin/control-panel", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BomCcYkm.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/useUserContext-ltZQ69X3.js", "/assets/provider-RLEbTht8.js", "/assets/index-CWUlnviP.js", "/assets/index-C8qbBouM.js", "/assets/index-C7Q2D2Yy.js", "/assets/index-BHyeewtM.js", "/assets/Pagination-D2AnF2UC.js", "/assets/Table-D46c5F71.js", "/assets/index-CzA3G1Dw.js", "/assets/index-CY1kBE-P.js", "/assets/index-BzyPBYP5.js", "/assets/DeleteOutlined-CXav3FED.js", "/assets/index-CeUTncnb.js", "/assets/index-C6x-598G.js", "/assets/SearchOutlined-ADv_U9mc.js", "/assets/collapse-BbEVqHco.js", "/assets/row-B-zWIMNx.js", "/assets/responsiveObserver-CzlRrsiN.js", "/assets/EllipsisOutlined-Bce2vzrs.js", "/assets/Dropdown-EsR9A278.js", "/assets/useBreakpoint-CiMsAa-F.js", "/assets/index-LQraNpB7.js", "/assets/index-B0p7av3r.js", "/assets/index-DqVK0OKb.js", "/assets/useClosable-Bdp6jF3W.js", "/assets/fade-BYpxbwFh.js"], "css": [] }, "routes/_logged.courses.$courseId_": { "id": "routes/_logged.courses.$courseId_", "parentId": "routes/_logged", "path": "courses/:courseId", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CiQkwJO6.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/useUserContext-ltZQ69X3.js", "/assets/index-CWUlnviP.js", "/assets/provider-RLEbTht8.js", "/assets/index-CH34cjkL.js", "/assets/index-CeUTncnb.js", "/assets/index-C7Q2D2Yy.js", "/assets/index-D28acUWU.js", "/assets/index-cPgcPs25.js", "/assets/index-CzA3G1Dw.js", "/assets/index-BzyPBYP5.js", "/assets/index-C6x-598G.js", "/assets/Pagination-D2AnF2UC.js", "/assets/useBreakpoint-CiMsAa-F.js", "/assets/responsiveObserver-CzlRrsiN.js", "/assets/EllipsisOutlined-Bce2vzrs.js", "/assets/index-LQraNpB7.js", "/assets/SearchOutlined-ADv_U9mc.js", "/assets/row-B-zWIMNx.js", "/assets/Dropdown-EsR9A278.js", "/assets/index-BHyeewtM.js", "/assets/useClosable-Bdp6jF3W.js", "/assets/fade-BYpxbwFh.js"], "css": [] }, "routes/_auth.reset-password_": { "id": "routes/_auth.reset-password_", "parentId": "root", "path": "reset-password", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-D56-07kJ.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/index-CWUlnviP.js", "/assets/index-HjNU2j5p.js", "/assets/index-CeUTncnb.js", "/assets/index-C8qbBouM.js", "/assets/index-C7Q2D2Yy.js", "/assets/index-9K41UzrV.js", "/assets/index-BzyPBYP5.js", "/assets/index-bZIECVya.js", "/assets/SearchOutlined-ADv_U9mc.js", "/assets/collapse-BbEVqHco.js", "/assets/row-B-zWIMNx.js", "/assets/responsiveObserver-CzlRrsiN.js"], "css": [] }, "routes/_logged.my-courses_": { "id": "routes/_logged.my-courses_", "parentId": "routes/_logged", "path": "my-courses", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BgLW_9Od.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/useUserContext-ltZQ69X3.js", "/assets/index-CWUlnviP.js", "/assets/provider-RLEbTht8.js", "/assets/index-CeUTncnb.js", "/assets/index-BzyPBYP5.js", "/assets/index-C7Q2D2Yy.js", "/assets/row-B-zWIMNx.js", "/assets/index-cPgcPs25.js", "/assets/index-C6x-598G.js", "/assets/responsiveObserver-CzlRrsiN.js", "/assets/Dropdown-EsR9A278.js", "/assets/index-BHyeewtM.js", "/assets/EllipsisOutlined-Bce2vzrs.js"], "css": [] }, "routes/_logged.skillfeed_": { "id": "routes/_logged.skillfeed_", "parentId": "routes/_logged", "path": "skillfeed", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BL7AcSTa.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/index-CWUlnviP.js", "/assets/provider-RLEbTht8.js", "/assets/index-C7Q2D2Yy.js", "/assets/index-C6x-598G.js", "/assets/index-BzyPBYP5.js", "/assets/row-B-zWIMNx.js", "/assets/responsiveObserver-CzlRrsiN.js"], "css": [] }, "routes/api.upload.private": { "id": "routes/api.upload.private", "parentId": "root", "path": "api/upload/private", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.upload.private-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_logged.settings_": { "id": "routes/_logged.settings_", "parentId": "routes/_logged", "path": "settings", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BdoUCLzv.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/useUserContext-ltZQ69X3.js", "/assets/index-CWUlnviP.js", "/assets/provider-RLEbTht8.js", "/assets/index-C8qbBouM.js", "/assets/index-BzyPBYP5.js", "/assets/index-C7Q2D2Yy.js", "/assets/row-B-zWIMNx.js", "/assets/index-cPgcPs25.js", "/assets/index-DqVK0OKb.js", "/assets/index-C6x-598G.js", "/assets/SearchOutlined-ADv_U9mc.js", "/assets/collapse-BbEVqHco.js", "/assets/responsiveObserver-CzlRrsiN.js", "/assets/Dropdown-EsR9A278.js", "/assets/index-BHyeewtM.js", "/assets/EllipsisOutlined-Bce2vzrs.js"], "css": [] }, "routes/api.upload.public": { "id": "routes/api.upload.public", "parentId": "root", "path": "api/upload/public", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.upload.public-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_logged.courses_": { "id": "routes/_logged.courses_", "parentId": "routes/_logged", "path": "courses", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BKScEbBt.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/useUserContext-ltZQ69X3.js", "/assets/index-CWUlnviP.js", "/assets/provider-RLEbTht8.js", "/assets/index-CH34cjkL.js", "/assets/index-CeUTncnb.js", "/assets/index-C7Q2D2Yy.js", "/assets/index-cPgcPs25.js", "/assets/row-B-zWIMNx.js", "/assets/index-BzyPBYP5.js", "/assets/index-C6x-598G.js", "/assets/Dropdown-EsR9A278.js", "/assets/index-BHyeewtM.js", "/assets/EllipsisOutlined-Bce2vzrs.js", "/assets/responsiveObserver-CzlRrsiN.js"], "css": [] }, "routes/_logged.pricing_": { "id": "routes/_logged.pricing_", "parentId": "routes/_logged", "path": "pricing", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CZKHKSSS.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/index-CWUlnviP.js", "/assets/provider-RLEbTht8.js", "/assets/row-B-zWIMNx.js", "/assets/index-LQraNpB7.js", "/assets/index-cPgcPs25.js", "/assets/index-C7Q2D2Yy.js", "/assets/index-BSzoOTG-.js", "/assets/index-C6x-598G.js", "/assets/index-BzyPBYP5.js", "/assets/responsiveObserver-CzlRrsiN.js", "/assets/Dropdown-EsR9A278.js", "/assets/index-BHyeewtM.js", "/assets/EllipsisOutlined-Bce2vzrs.js", "/assets/useClosable-Bdp6jF3W.js"], "css": [] }, "routes/_logged.profile_": { "id": "routes/_logged.profile_", "parentId": "routes/_logged", "path": "profile", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DOznnJ-_.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/useUserContext-ltZQ69X3.js", "/assets/index-C7KOCkDY.js", "/assets/index-CWUlnviP.js", "/assets/provider-RLEbTht8.js", "/assets/index-q-G7H0tu.js", "/assets/index-C8qbBouM.js", "/assets/index-C7Q2D2Yy.js", "/assets/index-vFrpDYpR.js", "/assets/index-C6x-598G.js", "/assets/index-BzyPBYP5.js", "/assets/collapse-BbEVqHco.js", "/assets/fade-BYpxbwFh.js", "/assets/useBreakpoint-CiMsAa-F.js", "/assets/responsiveObserver-CzlRrsiN.js", "/assets/DeleteOutlined-CXav3FED.js", "/assets/SearchOutlined-ADv_U9mc.js", "/assets/row-B-zWIMNx.js"], "css": [] }, "routes/_logged.upgrade_": { "id": "routes/_logged.upgrade_", "parentId": "routes/_logged", "path": "upgrade", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-ERod1HfO.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/useUserContext-ltZQ69X3.js", "/assets/index-CWUlnviP.js", "/assets/provider-RLEbTht8.js", "/assets/index-CeUTncnb.js", "/assets/index-BzyPBYP5.js", "/assets/index-C7Q2D2Yy.js", "/assets/row-B-zWIMNx.js", "/assets/index-cPgcPs25.js", "/assets/index-C6x-598G.js", "/assets/responsiveObserver-CzlRrsiN.js", "/assets/Dropdown-EsR9A278.js", "/assets/index-BHyeewtM.js", "/assets/EllipsisOutlined-Bce2vzrs.js"], "css": [] }, "routes/_auth.register_": { "id": "routes/_auth.register_", "parentId": "root", "path": "register", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-C96qUM9D.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/index-C7KOCkDY.js", "/assets/index-CWUlnviP.js", "/assets/index-HjNU2j5p.js", "/assets/index-CeUTncnb.js", "/assets/index-DWrdUq8q.js", "/assets/index-C8qbBouM.js", "/assets/index-C7Q2D2Yy.js", "/assets/index-BzyPBYP5.js", "/assets/index-bZIECVya.js", "/assets/SearchOutlined-ADv_U9mc.js", "/assets/collapse-BbEVqHco.js", "/assets/row-B-zWIMNx.js", "/assets/responsiveObserver-CzlRrsiN.js"], "css": [] }, "routes/_logged.wallet": { "id": "routes/_logged.wallet", "parentId": "routes/_logged", "path": "wallet", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-Y3dhlpoF.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/useUserContext-ltZQ69X3.js", "/assets/index-CWUlnviP.js", "/assets/provider-RLEbTht8.js", "/assets/index-C8qbBouM.js", "/assets/row-B-zWIMNx.js", "/assets/index-cPgcPs25.js", "/assets/index-C7Q2D2Yy.js", "/assets/Table-D46c5F71.js", "/assets/index-CzA3G1Dw.js", "/assets/index-BzyPBYP5.js", "/assets/index-C6x-598G.js", "/assets/SearchOutlined-ADv_U9mc.js", "/assets/collapse-BbEVqHco.js", "/assets/responsiveObserver-CzlRrsiN.js", "/assets/Dropdown-EsR9A278.js", "/assets/index-BHyeewtM.js", "/assets/EllipsisOutlined-Bce2vzrs.js", "/assets/Pagination-D2AnF2UC.js", "/assets/useBreakpoint-CiMsAa-F.js", "/assets/index-LQraNpB7.js", "/assets/index-B0p7av3r.js", "/assets/index-DqVK0OKb.js", "/assets/useClosable-Bdp6jF3W.js", "/assets/fade-BYpxbwFh.js"], "css": [] }, "routes/_auth.login_": { "id": "routes/_auth.login_", "parentId": "root", "path": "login", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-vZK7H6sX.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/index-CWUlnviP.js", "/assets/index-HjNU2j5p.js", "/assets/index-CeUTncnb.js", "/assets/index-DWrdUq8q.js", "/assets/index-C8qbBouM.js", "/assets/index-C7Q2D2Yy.js", "/assets/index-bZIECVya.js", "/assets/SearchOutlined-ADv_U9mc.js", "/assets/collapse-BbEVqHco.js", "/assets/row-B-zWIMNx.js", "/assets/responsiveObserver-CzlRrsiN.js"], "css": [] }, "routes/api.trpc.$": { "id": "routes/api.trpc.$", "parentId": "root", "path": "api/trpc/*", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.trpc._-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_logged_": { "id": "routes/_logged_", "parentId": "root", "path": void 0, "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_logged": { "id": "routes/_logged", "parentId": "root", "path": void 0, "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_logged-Bm40zpP3.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/useUserContext-ltZQ69X3.js", "/assets/index-CWUlnviP.js", "/assets/provider-RLEbTht8.js", "/assets/index-C7Q2D2Yy.js", "/assets/index-B0p7av3r.js", "/assets/index-C7KOCkDY.js", "/assets/index-bZIECVya.js", "/assets/index-CeUTncnb.js", "/assets/index-vFrpDYpR.js", "/assets/index-BSzoOTG-.js", "/assets/MenuOutlined-DhjoUD9T.js", "/assets/index-BzyPBYP5.js", "/assets/EllipsisOutlined-Bce2vzrs.js", "/assets/collapse-BbEVqHco.js", "/assets/responsiveObserver-CzlRrsiN.js", "/assets/useBreakpoint-CiMsAa-F.js", "/assets/useClosable-Bdp6jF3W.js"], "css": [] }, "routes/$404.$": { "id": "routes/$404.$", "parentId": "root", "path": ":404/*", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_404._-Bymccv93.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/provider-RLEbTht8.js", "/assets/index-C7Q2D2Yy.js", "/assets/components-BAyeFLBh.js", "/assets/index-C6x-598G.js", "/assets/index-BzyPBYP5.js", "/assets/index-DWrdUq8q.js", "/assets/index-CeUTncnb.js", "/assets/row-B-zWIMNx.js", "/assets/responsiveObserver-CzlRrsiN.js"], "css": [] }, "routes/_index": { "id": "routes/_index", "parentId": "root", "path": void 0, "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_index-BWbDWb-U.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/provider-RLEbTht8.js", "/assets/index-bZIECVya.js", "/assets/components-BAyeFLBh.js", "/assets/index-C7Q2D2Yy.js", "/assets/useUserContext-ltZQ69X3.js", "/assets/index-CeUTncnb.js", "/assets/MenuOutlined-DhjoUD9T.js", "/assets/index-BzyPBYP5.js", "/assets/index-C6x-598G.js", "/assets/index-DWrdUq8q.js", "/assets/index-CWUlnviP.js", "/assets/row-B-zWIMNx.js", "/assets/responsiveObserver-CzlRrsiN.js"], "css": [] } }, "url": "/assets/manifest-106becc2.js", "version": "106becc2" };
+const serverManifest = { "entry": { "module": "/assets/entry.client-DOV1y12S.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/index-CeUTncnb.js", "/assets/index-DWrdUq8q.js", "/assets/components-BAyeFLBh.js"], "css": ["/assets/entry-BgyzSHUC.css"] }, "routes": { "root": { "id": "root", "parentId": void 0, "path": "", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/root-CmhezU1E.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/index-CeUTncnb.js", "/assets/index-DWrdUq8q.js", "/assets/components-BAyeFLBh.js", "/assets/root-DOMXSAHX.js", "/assets/useUserContext-CjczNUYd.js", "/assets/index-D9_lrgu6.js", "/assets/index-Bs36QOeU.js", "/assets/provider-ByYdleXY.js", "/assets/index-CI-NhIJ-.js", "/assets/ExclamationCircleFilled-CiuxUjGk.js", "/assets/button-DgkAoqE2.js", "/assets/index-BtJ7AB49.js", "/assets/Sider-C8x-a6eO.js", "/assets/LeftOutlined-R_ycQdco.js", "/assets/index-_rPoQdzz.js", "/assets/index-DaEJ5rVL.js", "/assets/pickAttrs-r0RFaJBP.js", "/assets/CloseOutlined-Dxm4jkL9.js"], "css": ["/assets/entry-BgyzSHUC.css"] }, "routes/_logged.admin.courses.$courseId.edit": { "id": "routes/_logged.admin.courses.$courseId.edit", "parentId": "routes/_logged", "path": "admin/courses/:courseId/edit", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BnazAAzN.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/index-D9_lrgu6.js", "/assets/index-BZJXnv9w.js", "/assets/index-CH34cjkL.js", "/assets/index-CeUTncnb.js", "/assets/index-IivWOIOz.js", "/assets/index-ufwEpZVH.js", "/assets/index-_rPoQdzz.js", "/assets/index-DaEJ5rVL.js", "/assets/index-ZOWeBnvh.js", "/assets/button-DgkAoqE2.js", "/assets/Pagination-CBJzwpBi.js", "/assets/index-Bs36QOeU.js", "/assets/index-dGebq1Ms.js", "/assets/index-Bjxa92qe.js", "/assets/Table-DELuyHK0.js", "/assets/index-DsxaOx6h.js", "/assets/pickAttrs-r0RFaJBP.js", "/assets/collapse-BbEVqHco.js", "/assets/fade-2t19LHl3.js", "/assets/useBreakpoint-D4cuiZ4X.js", "/assets/responsiveObserver-Cz69L87y.js", "/assets/DeleteOutlined-Cz9l2vbV.js", "/assets/ExclamationCircleFilled-CiuxUjGk.js", "/assets/CloseOutlined-Dxm4jkL9.js", "/assets/SearchOutlined-CdaQ9A1C.js", "/assets/row-DHszOpHb.js", "/assets/LeftOutlined-R_ycQdco.js", "/assets/EllipsisOutlined-D3hTA01Z.js", "/assets/index-Hz7ZMWx3.js", "/assets/Dropdown-DVbf8yOU.js", "/assets/index-rKHRpc2j.js", "/assets/Sider-C8x-a6eO.js", "/assets/useClosable-CCDYGg12.js"], "css": [] }, "routes/_logged.courses.$courseId.preview": { "id": "routes/_logged.courses.$courseId.preview", "parentId": "routes/_logged", "path": "courses/:courseId/preview", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CEBsmqyd.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/useUserContext-CjczNUYd.js", "/assets/index-D9_lrgu6.js", "/assets/index-CH34cjkL.js", "/assets/CoursePaymentModal-D1Ms6t_1.js", "/assets/index-CeUTncnb.js", "/assets/index-_rPoQdzz.js", "/assets/button-DgkAoqE2.js", "/assets/index-dGebq1Ms.js", "/assets/index-ydtyDG1o.js", "/assets/index-DaEJ5rVL.js", "/assets/index-ufwEpZVH.js", "/assets/index-Bs36QOeU.js", "/assets/index-IivWOIOz.js", "/assets/pickAttrs-r0RFaJBP.js", "/assets/SearchOutlined-CdaQ9A1C.js", "/assets/collapse-BbEVqHco.js", "/assets/row-DHszOpHb.js", "/assets/responsiveObserver-Cz69L87y.js", "/assets/ExclamationCircleFilled-CiuxUjGk.js", "/assets/index-DsxaOx6h.js", "/assets/CloseOutlined-Dxm4jkL9.js", "/assets/useClosable-CCDYGg12.js", "/assets/Dropdown-DVbf8yOU.js", "/assets/fade-2t19LHl3.js", "/assets/index-Bjxa92qe.js", "/assets/index-DIL_-TYb.js", "/assets/Pagination-CBJzwpBi.js", "/assets/LeftOutlined-R_ycQdco.js", "/assets/useBreakpoint-D4cuiZ4X.js", "/assets/EllipsisOutlined-D3hTA01Z.js", "/assets/index-Hz7ZMWx3.js", "/assets/index-CeoCv33H.js"], "css": [] }, "routes/_auth.reset-password.$token_": { "id": "routes/_auth.reset-password.$token_", "parentId": "root", "path": "reset-password/:token", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CeZeaHHs.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/index-D9_lrgu6.js", "/assets/index-CeUTncnb.js", "/assets/index-IivWOIOz.js", "/assets/index-Bs36QOeU.js", "/assets/index-DoFAsXEz.js", "/assets/index-DIL_-TYb.js", "/assets/button-DgkAoqE2.js", "/assets/index-DaEJ5rVL.js", "/assets/pickAttrs-r0RFaJBP.js", "/assets/SearchOutlined-CdaQ9A1C.js", "/assets/collapse-BbEVqHco.js", "/assets/row-DHszOpHb.js", "/assets/responsiveObserver-Cz69L87y.js", "/assets/ExclamationCircleFilled-CiuxUjGk.js", "/assets/index-DEJDlrjn.js", "/assets/CloseOutlined-Dxm4jkL9.js"], "css": [] }, "routes/_logged.admin.control-panel_": { "id": "routes/_logged.admin.control-panel_", "parentId": "routes/_logged", "path": "admin/control-panel", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BUEneYmB.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/useUserContext-CjczNUYd.js", "/assets/index-D9_lrgu6.js", "/assets/index-IivWOIOz.js", "/assets/button-DgkAoqE2.js", "/assets/index-CeoCv33H.js", "/assets/Pagination-CBJzwpBi.js", "/assets/Table-DELuyHK0.js", "/assets/index-DsxaOx6h.js", "/assets/index-ZOWeBnvh.js", "/assets/index-DaEJ5rVL.js", "/assets/DeleteOutlined-Cz9l2vbV.js", "/assets/index-BtJ7AB49.js", "/assets/index-CeUTncnb.js", "/assets/index-ufwEpZVH.js", "/assets/index-Bs36QOeU.js", "/assets/pickAttrs-r0RFaJBP.js", "/assets/SearchOutlined-CdaQ9A1C.js", "/assets/collapse-BbEVqHco.js", "/assets/row-DHszOpHb.js", "/assets/responsiveObserver-Cz69L87y.js", "/assets/ExclamationCircleFilled-CiuxUjGk.js", "/assets/CloseOutlined-Dxm4jkL9.js", "/assets/EllipsisOutlined-D3hTA01Z.js", "/assets/Dropdown-DVbf8yOU.js", "/assets/LeftOutlined-R_ycQdco.js", "/assets/useBreakpoint-D4cuiZ4X.js", "/assets/index-Hz7ZMWx3.js", "/assets/index-rKHRpc2j.js", "/assets/Sider-C8x-a6eO.js", "/assets/index-Bjxa92qe.js", "/assets/index-_rPoQdzz.js", "/assets/useClosable-CCDYGg12.js", "/assets/fade-2t19LHl3.js"], "css": [] }, "routes/_logged.courses.$courseId_": { "id": "routes/_logged.courses.$courseId_", "parentId": "routes/_logged", "path": "courses/:courseId", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-Bbq4vIKx.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/useUserContext-CjczNUYd.js", "/assets/index-D9_lrgu6.js", "/assets/index-CH34cjkL.js", "/assets/index-CeUTncnb.js", "/assets/index-_rPoQdzz.js", "/assets/index-dGebq1Ms.js", "/assets/index-ydtyDG1o.js", "/assets/index-Bs36QOeU.js", "/assets/button-DgkAoqE2.js", "/assets/index-DsxaOx6h.js", "/assets/index-DaEJ5rVL.js", "/assets/index-ufwEpZVH.js", "/assets/Pagination-CBJzwpBi.js", "/assets/LeftOutlined-R_ycQdco.js", "/assets/pickAttrs-r0RFaJBP.js", "/assets/useBreakpoint-D4cuiZ4X.js", "/assets/responsiveObserver-Cz69L87y.js", "/assets/EllipsisOutlined-D3hTA01Z.js", "/assets/index-Hz7ZMWx3.js", "/assets/CloseOutlined-Dxm4jkL9.js", "/assets/SearchOutlined-CdaQ9A1C.js", "/assets/row-DHszOpHb.js", "/assets/Dropdown-DVbf8yOU.js", "/assets/index-CeoCv33H.js", "/assets/ExclamationCircleFilled-CiuxUjGk.js", "/assets/useClosable-CCDYGg12.js", "/assets/fade-2t19LHl3.js"], "css": [] }, "routes/_auth.reset-password_": { "id": "routes/_auth.reset-password_", "parentId": "root", "path": "reset-password", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CjiCgTov.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/index-D9_lrgu6.js", "/assets/index-DoFAsXEz.js", "/assets/index-CeUTncnb.js", "/assets/index-IivWOIOz.js", "/assets/index-Bs36QOeU.js", "/assets/index-DIL_-TYb.js", "/assets/button-DgkAoqE2.js", "/assets/index-DaEJ5rVL.js", "/assets/index-DEJDlrjn.js", "/assets/pickAttrs-r0RFaJBP.js", "/assets/SearchOutlined-CdaQ9A1C.js", "/assets/collapse-BbEVqHco.js", "/assets/row-DHszOpHb.js", "/assets/responsiveObserver-Cz69L87y.js", "/assets/ExclamationCircleFilled-CiuxUjGk.js", "/assets/CloseOutlined-Dxm4jkL9.js"], "css": [] }, "routes/_logged.my-courses_": { "id": "routes/_logged.my-courses_", "parentId": "routes/_logged", "path": "my-courses", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DgOoltaF.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/useUserContext-CjczNUYd.js", "/assets/index-D9_lrgu6.js", "/assets/index-CeUTncnb.js", "/assets/index-DaEJ5rVL.js", "/assets/index-_rPoQdzz.js", "/assets/row-DHszOpHb.js", "/assets/index-ydtyDG1o.js", "/assets/button-DgkAoqE2.js", "/assets/index-ufwEpZVH.js", "/assets/index-Bs36QOeU.js", "/assets/ExclamationCircleFilled-CiuxUjGk.js", "/assets/pickAttrs-r0RFaJBP.js", "/assets/CloseOutlined-Dxm4jkL9.js", "/assets/responsiveObserver-Cz69L87y.js", "/assets/Dropdown-DVbf8yOU.js", "/assets/index-CeoCv33H.js", "/assets/EllipsisOutlined-D3hTA01Z.js"], "css": [] }, "routes/_logged.skillfeed_": { "id": "routes/_logged.skillfeed_", "parentId": "routes/_logged", "path": "skillfeed", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-D4IDdPZO.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/index-D9_lrgu6.js", "/assets/button-DgkAoqE2.js", "/assets/index-ufwEpZVH.js", "/assets/index-Bs36QOeU.js", "/assets/row-DHszOpHb.js", "/assets/responsiveObserver-Cz69L87y.js", "/assets/index-_rPoQdzz.js"], "css": [] }, "routes/api.upload.private": { "id": "routes/api.upload.private", "parentId": "root", "path": "api/upload/private", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.upload.private-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_logged.settings_": { "id": "routes/_logged.settings_", "parentId": "routes/_logged", "path": "settings", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BWtG7xeN.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/useUserContext-CjczNUYd.js", "/assets/index-D9_lrgu6.js", "/assets/index-IivWOIOz.js", "/assets/index-DaEJ5rVL.js", "/assets/row-DHszOpHb.js", "/assets/index-ydtyDG1o.js", "/assets/index-Bjxa92qe.js", "/assets/button-DgkAoqE2.js", "/assets/index-Bs36QOeU.js", "/assets/index-ufwEpZVH.js", "/assets/pickAttrs-r0RFaJBP.js", "/assets/SearchOutlined-CdaQ9A1C.js", "/assets/collapse-BbEVqHco.js", "/assets/ExclamationCircleFilled-CiuxUjGk.js", "/assets/CloseOutlined-Dxm4jkL9.js", "/assets/responsiveObserver-Cz69L87y.js", "/assets/Dropdown-DVbf8yOU.js", "/assets/index-CeoCv33H.js", "/assets/EllipsisOutlined-D3hTA01Z.js", "/assets/index-_rPoQdzz.js"], "css": [] }, "routes/api.upload.public": { "id": "routes/api.upload.public", "parentId": "root", "path": "api/upload/public", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.upload.public-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_logged.courses_": { "id": "routes/_logged.courses_", "parentId": "routes/_logged", "path": "courses", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CRyn_Hkk.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/useUserContext-CjczNUYd.js", "/assets/index-D9_lrgu6.js", "/assets/index-CH34cjkL.js", "/assets/index-CeUTncnb.js", "/assets/index-_rPoQdzz.js", "/assets/index-ydtyDG1o.js", "/assets/button-DgkAoqE2.js", "/assets/row-DHszOpHb.js", "/assets/index-DaEJ5rVL.js", "/assets/index-ufwEpZVH.js", "/assets/index-Bs36QOeU.js", "/assets/Dropdown-DVbf8yOU.js", "/assets/index-CeoCv33H.js", "/assets/CloseOutlined-Dxm4jkL9.js", "/assets/EllipsisOutlined-D3hTA01Z.js", "/assets/responsiveObserver-Cz69L87y.js", "/assets/ExclamationCircleFilled-CiuxUjGk.js", "/assets/pickAttrs-r0RFaJBP.js"], "css": [] }, "routes/_logged.pricing_": { "id": "routes/_logged.pricing_", "parentId": "routes/_logged", "path": "pricing", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DG-Ypyzo.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/index-D9_lrgu6.js", "/assets/row-DHszOpHb.js", "/assets/index-_rPoQdzz.js", "/assets/index-Hz7ZMWx3.js", "/assets/index-ydtyDG1o.js", "/assets/index-Bs36QOeU.js", "/assets/index-CqSqlCYd.js", "/assets/index-ufwEpZVH.js", "/assets/responsiveObserver-Cz69L87y.js", "/assets/Dropdown-DVbf8yOU.js", "/assets/index-CeoCv33H.js", "/assets/CloseOutlined-Dxm4jkL9.js", "/assets/EllipsisOutlined-D3hTA01Z.js", "/assets/useClosable-CCDYGg12.js", "/assets/pickAttrs-r0RFaJBP.js"], "css": [] }, "routes/_logged.profile_": { "id": "routes/_logged.profile_", "parentId": "routes/_logged", "path": "profile", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-knSzpq4Y.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/useUserContext-CjczNUYd.js", "/assets/index-C7KOCkDY.js", "/assets/index-D9_lrgu6.js", "/assets/index-BZJXnv9w.js", "/assets/index-IivWOIOz.js", "/assets/index-Bs36QOeU.js", "/assets/button-DgkAoqE2.js", "/assets/index-BQqE00C6.js", "/assets/index-ufwEpZVH.js", "/assets/pickAttrs-r0RFaJBP.js", "/assets/collapse-BbEVqHco.js", "/assets/fade-2t19LHl3.js", "/assets/useBreakpoint-D4cuiZ4X.js", "/assets/responsiveObserver-Cz69L87y.js", "/assets/DeleteOutlined-Cz9l2vbV.js", "/assets/ExclamationCircleFilled-CiuxUjGk.js", "/assets/CloseOutlined-Dxm4jkL9.js", "/assets/SearchOutlined-CdaQ9A1C.js", "/assets/row-DHszOpHb.js", "/assets/index-_rPoQdzz.js"], "css": [] }, "routes/_logged.upgrade_": { "id": "routes/_logged.upgrade_", "parentId": "routes/_logged", "path": "upgrade", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CACCO8R_.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/useUserContext-CjczNUYd.js", "/assets/CoursePaymentModal-D1Ms6t_1.js", "/assets/index-CeUTncnb.js", "/assets/index-D9_lrgu6.js", "/assets/row-DHszOpHb.js", "/assets/index-ydtyDG1o.js", "/assets/button-DgkAoqE2.js", "/assets/index-DaEJ5rVL.js", "/assets/index-ufwEpZVH.js", "/assets/index-IivWOIOz.js", "/assets/index-Bs36QOeU.js", "/assets/pickAttrs-r0RFaJBP.js", "/assets/SearchOutlined-CdaQ9A1C.js", "/assets/collapse-BbEVqHco.js", "/assets/ExclamationCircleFilled-CiuxUjGk.js", "/assets/index-DsxaOx6h.js", "/assets/CloseOutlined-Dxm4jkL9.js", "/assets/useClosable-CCDYGg12.js", "/assets/Dropdown-DVbf8yOU.js", "/assets/fade-2t19LHl3.js", "/assets/index-Bjxa92qe.js", "/assets/index-DIL_-TYb.js", "/assets/index-_rPoQdzz.js", "/assets/responsiveObserver-Cz69L87y.js", "/assets/index-CeoCv33H.js", "/assets/EllipsisOutlined-D3hTA01Z.js"], "css": [] }, "routes/_auth.register_": { "id": "routes/_auth.register_", "parentId": "root", "path": "register", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-VCMP9QfC.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/index-C7KOCkDY.js", "/assets/index-D9_lrgu6.js", "/assets/index-DoFAsXEz.js", "/assets/index-CeUTncnb.js", "/assets/index-DWrdUq8q.js", "/assets/index-IivWOIOz.js", "/assets/index-Bs36QOeU.js", "/assets/button-DgkAoqE2.js", "/assets/index-DaEJ5rVL.js", "/assets/index-DEJDlrjn.js", "/assets/pickAttrs-r0RFaJBP.js", "/assets/SearchOutlined-CdaQ9A1C.js", "/assets/collapse-BbEVqHco.js", "/assets/row-DHszOpHb.js", "/assets/responsiveObserver-Cz69L87y.js", "/assets/ExclamationCircleFilled-CiuxUjGk.js", "/assets/CloseOutlined-Dxm4jkL9.js"], "css": [] }, "routes/_logged.wallet": { "id": "routes/_logged.wallet", "parentId": "routes/_logged", "path": "wallet", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CefMmTvZ.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/useUserContext-CjczNUYd.js", "/assets/index-D9_lrgu6.js", "/assets/index-CeUTncnb.js", "/assets/index-IivWOIOz.js", "/assets/index-DsxaOx6h.js", "/assets/button-DgkAoqE2.js", "/assets/index-Bjxa92qe.js", "/assets/index-DIL_-TYb.js", "/assets/index-_rPoQdzz.js", "/assets/row-DHszOpHb.js", "/assets/index-ydtyDG1o.js", "/assets/Table-DELuyHK0.js", "/assets/index-DaEJ5rVL.js", "/assets/index-ufwEpZVH.js", "/assets/index-Bs36QOeU.js", "/assets/pickAttrs-r0RFaJBP.js", "/assets/SearchOutlined-CdaQ9A1C.js", "/assets/collapse-BbEVqHco.js", "/assets/ExclamationCircleFilled-CiuxUjGk.js", "/assets/CloseOutlined-Dxm4jkL9.js", "/assets/useClosable-CCDYGg12.js", "/assets/Dropdown-DVbf8yOU.js", "/assets/fade-2t19LHl3.js", "/assets/responsiveObserver-Cz69L87y.js", "/assets/index-CeoCv33H.js", "/assets/EllipsisOutlined-D3hTA01Z.js", "/assets/Pagination-CBJzwpBi.js", "/assets/LeftOutlined-R_ycQdco.js", "/assets/useBreakpoint-D4cuiZ4X.js", "/assets/index-Hz7ZMWx3.js", "/assets/index-rKHRpc2j.js", "/assets/Sider-C8x-a6eO.js"], "css": [] }, "routes/_auth.login_": { "id": "routes/_auth.login_", "parentId": "root", "path": "login", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CE0iPp2-.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/index-D9_lrgu6.js", "/assets/index-DoFAsXEz.js", "/assets/index-CeUTncnb.js", "/assets/index-DWrdUq8q.js", "/assets/index-IivWOIOz.js", "/assets/index-Bs36QOeU.js", "/assets/button-DgkAoqE2.js", "/assets/index-DEJDlrjn.js", "/assets/pickAttrs-r0RFaJBP.js", "/assets/SearchOutlined-CdaQ9A1C.js", "/assets/collapse-BbEVqHco.js", "/assets/row-DHszOpHb.js", "/assets/responsiveObserver-Cz69L87y.js", "/assets/ExclamationCircleFilled-CiuxUjGk.js"], "css": [] }, "routes/api.trpc.$": { "id": "routes/api.trpc.$", "parentId": "root", "path": "api/trpc/*", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.trpc._-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_logged_": { "id": "routes/_logged_", "parentId": "root", "path": void 0, "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_logged": { "id": "routes/_logged", "parentId": "root", "path": void 0, "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_logged-CblSt2n2.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/useUserContext-CjczNUYd.js", "/assets/index-D9_lrgu6.js", "/assets/provider-ByYdleXY.js", "/assets/index-Bs36QOeU.js", "/assets/index-rKHRpc2j.js", "/assets/index-C7KOCkDY.js", "/assets/index-DEJDlrjn.js", "/assets/index-CeUTncnb.js", "/assets/index-BQqE00C6.js", "/assets/index-CqSqlCYd.js", "/assets/MenuOutlined--yMtygif.js", "/assets/index-CI-NhIJ-.js", "/assets/ExclamationCircleFilled-CiuxUjGk.js", "/assets/button-DgkAoqE2.js", "/assets/index-BtJ7AB49.js", "/assets/Sider-C8x-a6eO.js", "/assets/LeftOutlined-R_ycQdco.js", "/assets/index-_rPoQdzz.js", "/assets/index-DaEJ5rVL.js", "/assets/pickAttrs-r0RFaJBP.js", "/assets/CloseOutlined-Dxm4jkL9.js", "/assets/EllipsisOutlined-D3hTA01Z.js", "/assets/collapse-BbEVqHco.js", "/assets/responsiveObserver-Cz69L87y.js", "/assets/useBreakpoint-D4cuiZ4X.js", "/assets/useClosable-CCDYGg12.js"], "css": [] }, "routes/$404.$": { "id": "routes/$404.$", "parentId": "root", "path": ":404/*", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_404._-BfdnJh98.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/index-CI-NhIJ-.js", "/assets/button-DgkAoqE2.js", "/assets/components-BAyeFLBh.js", "/assets/index-ufwEpZVH.js", "/assets/ExclamationCircleFilled-CiuxUjGk.js", "/assets/index-Bs36QOeU.js", "/assets/index-DWrdUq8q.js", "/assets/index-CeUTncnb.js", "/assets/row-DHszOpHb.js", "/assets/responsiveObserver-Cz69L87y.js", "/assets/index-_rPoQdzz.js"], "css": [] }, "routes/_index": { "id": "routes/_index", "parentId": "root", "path": void 0, "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/_index-CxxdqxXG.js", "imports": ["/assets/index-Bhhhx7h4.js", "/assets/provider-ByYdleXY.js", "/assets/index-DEJDlrjn.js", "/assets/components-BAyeFLBh.js", "/assets/index-Bs36QOeU.js", "/assets/useUserContext-CjczNUYd.js", "/assets/index-CeUTncnb.js", "/assets/MenuOutlined--yMtygif.js", "/assets/CloseOutlined-Dxm4jkL9.js", "/assets/ExclamationCircleFilled-CiuxUjGk.js", "/assets/index-ufwEpZVH.js", "/assets/index-CI-NhIJ-.js", "/assets/button-DgkAoqE2.js", "/assets/index-D9_lrgu6.js", "/assets/index-BtJ7AB49.js", "/assets/Sider-C8x-a6eO.js", "/assets/LeftOutlined-R_ycQdco.js", "/assets/index-_rPoQdzz.js", "/assets/index-DaEJ5rVL.js", "/assets/pickAttrs-r0RFaJBP.js", "/assets/index-DWrdUq8q.js", "/assets/row-DHszOpHb.js", "/assets/responsiveObserver-Cz69L87y.js"], "css": [] } }, "url": "/assets/manifest-bee9ebb5.js", "version": "bee9ebb5" };
 const mode = "production";
 const assetsBuildDirectory = "build/client";
 const basename = "/";
